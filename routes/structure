@@ -1,0 +1,25 @@
+job-portal-backend/
+├── config/
+│   └── db.js
+│   └── auth.js
+├── controllers/
+│   ├── adminController.js
+│   ├── employerController.js
+│   └── applicantController.js
+├── models/
+│   ├── userModel.js
+│   ├── jobModel.js
+│   └── applicationModel.js
+├── routes/
+│   ├── adminRoutes.js
+│   ├── employerRoutes.js
+│   └── applicantRoutes.js
+├── middleware/
+│   ├── authMiddleware.js
+│   └── roleMiddleware.js
+├── utils/
+│   └── validation.js
+├── .env
+├── app.js
+├── package.json
+└── README.md
