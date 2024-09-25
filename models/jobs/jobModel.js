@@ -1,10 +1,12 @@
 const db = require('../../config/db');
-const getJobs = async () => {
+const getJobs = async (page = 1, limit = 2) => {
     try {
+        // Calculate the offset
+        const offset = (page - 1) * limit;
+
         const query = `
             SELECT 
                 j.*, 
-                
                 GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
                 GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
                 GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
@@ -13,9 +15,6 @@ const getJobs = async () => {
                 GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
             FROM 
                 jobs j
-            LEFT JOIN 
-                job_types jt ON j.id = jt.job_id
-           
             LEFT JOIN 
                 job_categories jc ON j.id = jc.job_id
             LEFT JOIN 
@@ -29,9 +28,11 @@ const getJobs = async () => {
             LEFT JOIN 
                 skills s ON js.skill_id = s.id
             GROUP BY 
-                j.id;
+                j.id
+            LIMIT ? OFFSET ?;  -- Use LIMIT and OFFSET for pagination
         `;
-        const [results] = await db.query(query);
+
+        const [results] = await db.query(query, [limit, offset]);
 
         // Transform the result to split comma-separated values into arrays
         return results.map(job => ({
@@ -50,13 +51,13 @@ const getJobs = async () => {
 };
 
 const createJob = async (jobData) => {
-    const { title, region_id, address, salary_from, salary_to, summary, description, expired_date, posting_date } = jobData;
+    const { title, region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id } = jobData;
     
     try {
         const [result] = await db.query(
-            `INSERT INTO jobs (title, region_id, address, salary_from, salary_to, summary, description, expired_date, posting_date) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [title, region_id, address, salary_from, salary_to, summary, description, expired_date, posting_date]
+            `INSERT INTO jobs (title, region_id,address,experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date,posting_date) 
+             VALUES (?, ?, ?,?,?,?, ?, ?, ?, ?,?)`,
+            [title, region_id, address, experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date, posting_date]
         );
         return result.insertId;
     } catch (error) {
@@ -138,13 +139,13 @@ const linkJobSkills = async (connection, jobId, skillIds) => {
 };
 
 const updateJob = async (jobData) => {
-    const { id, title, region_id, address, salary_from, salary_to, summary, description, expired_date, posting_date } = jobData;
+    const { id, title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date } = jobData;
 
     try {
         const [result] = await db.query(
-            `UPDATE jobs SET title = ?, region_id = ?, address = ?, salary_from = ?, salary_to = ?, summary = ?, description = ?, 
+            `UPDATE jobs SET title = ?, region_id = ?, address = ?,experience_id=?,position_level_id=?, salary_from = ?, salary_to = ?, summary = ?, description = ?, 
              expired_date = ?, posting_date = ? WHERE id = ?`,
-            [title, region_id, address, salary_from, salary_to, summary, description, expired_date, posting_date, id]
+            [title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date, id]
         );
         return result.affectedRows;
     } catch (error) {
@@ -152,6 +153,10 @@ const updateJob = async (jobData) => {
         throw new Error('Failed to update job');
     }
 };
+
+
+
+
 
 const deleteJob = async (id) => {
     try {
@@ -171,5 +176,5 @@ module.exports = {
     linkJobCultures, 
     linkJobSkills, 
     updateJob, 
-    deleteJob 
+    deleteJob
 };
