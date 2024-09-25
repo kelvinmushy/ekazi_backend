@@ -1,9 +1,48 @@
 const db = require('../../config/db');
-
 const getJobs = async () => {
     try {
-        const [results] = await db.query('SELECT * FROM jobs');
-        return results;
+        const query = `
+            SELECT 
+                j.*, 
+                
+                GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
+                GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
+                GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
+                GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
+                GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
+                GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
+            FROM 
+                jobs j
+            LEFT JOIN 
+                job_types jt ON j.id = jt.job_id
+           
+            LEFT JOIN 
+                job_categories jc ON j.id = jc.job_id
+            LEFT JOIN 
+                industries c ON jc.category_id = c.id
+            LEFT JOIN 
+                job_cultures jcu ON j.id = jcu.job_id
+            LEFT JOIN 
+                cultures cu ON jcu.culture_id = cu.id
+            LEFT JOIN 
+                job_skills js ON j.id = js.job_id
+            LEFT JOIN 
+                skills s ON js.skill_id = s.id
+            GROUP BY 
+                j.id;
+        `;
+        const [results] = await db.query(query);
+
+        // Transform the result to split comma-separated values into arrays
+        return results.map(job => ({
+            ...job,
+            category_ids: job.category_ids ? job.category_ids.split(',') : [],
+            category_names: job.category_names ? job.category_names.split(',') : [],
+            culture_ids: job.culture_ids ? job.culture_ids.split(',') : [],
+            culture_names: job.culture_names ? job.culture_names.split(',') : [],
+            skill_ids: job.skill_ids ? job.skill_ids.split(',') : [],
+            skill_names: job.skill_names ? job.skill_names.split(',') : [],
+        }));
     } catch (error) {
         console.error('Error fetching jobs:', error.message);
         throw new Error('Failed to fetch jobs');

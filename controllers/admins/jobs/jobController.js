@@ -1,5 +1,6 @@
 const { getJobs, createJob,linkJobSkills, linkJobTypes, linkJobCategories, linkJobCultures, updateJob, deleteJob } = require('../../../models/jobs/jobModel');
 const db = require('../../../config/db');
+
 const getAllJobs = async (req, res) => {
     try {
         const jobs = await getJobs();
