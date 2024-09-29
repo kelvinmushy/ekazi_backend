@@ -21,7 +21,8 @@ const createNewExperience = async (req, res) => {
 };
 
 const updateOldExperience = async (req, res) => {
-  const { id,name, updator_id  } = req.body;
+  const {name, updator_id  } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await updateExperience({ id,name, updator_id });
     if (affectedRows === 0) {
@@ -34,7 +35,7 @@ const updateOldExperience = async (req, res) => {
 };
 
 const deleteOldExperience = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteExperience(id);
     if (affectedRows === 0) {

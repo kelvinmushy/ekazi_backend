@@ -69,22 +69,22 @@ router.put('/resource/update/culture', updateOldCulture); // Changed to PUT
 router.delete('/resource/delete/culture', deleteOldCulture); // Changed to DELETE
 
 //Experience Routes API
-router.get('/resource/experiences', getAllExperiences);
-router.post('/resource/new/experience', createNewExperience);
-router.put('/resource/update/experience', updateOldExperience);
-router.delete('/resource/delete/experience', deleteOldExperience);
+router.get('/resource/experience', getAllExperiences);
+router.post('/resource/experience', createNewExperience);
+router.put('/resource/experience', updateOldExperience);
+router.delete('/resource/experience', deleteOldExperience);
 
 //Job Type Routes API
-router.get('/resource/job-types', getAllJobTypes);
-router.post('/resource/new/job-type', createNewJobType);
-router.put('/resource/update/job-type', updateOldJobType);
-router.delete('/resource/delete/job-type', deleteOldJobType);
+router.get('/resource/type', getAllJobTypes);
+router.post('/resource/type', createNewJobType);
+router.put('/resource/type/:id', updateOldJobType);
+router.delete('/resource/type/:id', deleteOldJobType);
 
 //Position Level Routes API
 router.get('/resource/position-levels', getAllPositionLevels);
-router.post('/resource/new/position-level', createNewPositionLevel);
-router.put('/resource/update/position-level', updateOldPositionLevel);
-router.delete('/resource/delete/position-level', deleteOldPositionLevel);
+router.post('/resource/position-level', createNewPositionLevel);
+router.put('/resource/position-level', updateOldPositionLevel);
+router.delete('/resource/position-level', deleteOldPositionLevel);
 
 //Skill Route API
 router.get('/resource/skills', getAllSkills);
@@ -107,9 +107,9 @@ router.delete('/resource/region/:id',deleteOldRegion );
 
 // Category Routes API
 router.get('/resource/categories', getAllCategories);
-router.post('/resource/new/category', createNewCategory);
-router.put('/resource/update/category', updateOldCategory);
-router.delete('/resource/delete/category', deleteOldCategory);
+router.post('/resource/category', createNewCategory);
+router.put('/resource/category/:id', updateOldCategory);
+router.delete('/resource/category/:id', deleteOldCategory);
 
 // Job Routes API
 router.get('/jobs', getAllJobs);

@@ -1,5 +1,5 @@
 // controllers/admins/categoryController.js
-const { getCategories}=require('../../models/resources/categoryModel')
+const { getCategories,createCategory,updateCategory,deleteCategory}=require('../../models/resources/categoryModel')
 
 const getAllCategories = async (req, res) => {
   try {
@@ -16,12 +16,14 @@ const createNewCategory = async (req, res) => {
     const categoryId = await createCategory({ industry_name, creator_id });
     res.status(201).json({ categoryId });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create category' });
+    res.status(500).json({ error: 'Failed to create category' + error.message});
   }
 };
 
 const updateOldCategory = async (req, res) => {
-  const { id, industry_name, updator_id } = req.body;
+  const {industry_name, updator_id } = req.body;
+  const id = req.params.id;
+  
   try {
     const affectedRows = await updateCategory({ id, industry_name, updator_id });
     if (affectedRows === 0) {
@@ -29,12 +31,13 @@ const updateOldCategory = async (req, res) => {
     }
     res.status(200).json({ affectedRows });
   } catch (error) {
+
     res.status(500).json({ error: 'Failed to update category' });
   }
 };
 
 const deleteOldCategory = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteCategory(id);
     if (affectedRows === 0) {

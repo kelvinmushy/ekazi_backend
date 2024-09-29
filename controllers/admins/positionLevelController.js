@@ -16,12 +16,13 @@ const createNewPositionLevel = async (req, res) => {
     const positionLevelId = await createPositionLevel({ position_name, creator_id });
     res.status(201).json({ positionLevelId });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create position level' });
+    res.status(500).json({ error: 'Failed to create position level' + error.message});
   }
 };
 
 const updateOldPositionLevel = async (req, res) => {
   const { id, position_name, updator_id } = req.body;
+  
   try {
     const affectedRows = await updatePositionLevel({ id, position_name, updator_id });
     if (affectedRows === 0) {
@@ -34,7 +35,7 @@ const updateOldPositionLevel = async (req, res) => {
 };
 
 const deleteOldPositionLevel = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deletePositionLevel(id);
     if (affectedRows === 0) {
@@ -42,7 +43,7 @@ const deleteOldPositionLevel = async (req, res) => {
     }
     res.status(200).json({ affectedRows });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete position level' });
+    res.status(500).json({ error: 'Failed to delete position level' + error.message});
   }
 };
 

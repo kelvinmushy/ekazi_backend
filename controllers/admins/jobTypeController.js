@@ -11,7 +11,8 @@ const getAllJobTypes = async (req, res) => {
 };
 
 const createNewJobType = async (req, res) => {
-  const { name, creator_id } = req.body;
+  const { name } = req.body;
+  const creator_id='1';
   try {
     const jobTypeId = await createJobType({ name, creator_id });
     res.status(201).json({ jobTypeId });
@@ -21,7 +22,9 @@ const createNewJobType = async (req, res) => {
 };
 
 const updateOldJobType = async (req, res) => {
-  const { id, name, updator_id } = req.body;
+  const {name } = req.body;
+  const id = req.params.id;
+  const  updator_id='1';
   try {
     const affectedRows = await updateJobType({ id, name, updator_id });
     if (affectedRows === 0) {
@@ -34,7 +37,7 @@ const updateOldJobType = async (req, res) => {
 };
 
 const deleteOldJobType = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteJobType(id);
     if (affectedRows === 0) {
@@ -45,5 +48,6 @@ const deleteOldJobType = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete job type' });
   }
 };
+
 
 module.exports = { getAllJobTypes, createNewJobType, updateOldJobType, deleteOldJobType };
