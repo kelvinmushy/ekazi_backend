@@ -21,7 +21,8 @@ const createNewRegion = async (req, res) => {
 };
 
 const updateOldRegion = async (req, res) => {
-  const { id, region_name, country_id, updator_id } = req.body;
+  const {region_name, country_id, updator_id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await updateRegion({ id, region_name, country_id, updator_id });
     if (affectedRows === 0) {
@@ -34,7 +35,7 @@ const updateOldRegion = async (req, res) => {
 };
 
 const deleteOldRegion = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteRegion(id);
     if (affectedRows === 0) {

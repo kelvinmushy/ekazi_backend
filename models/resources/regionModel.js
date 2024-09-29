@@ -1,9 +1,20 @@
 // models/resources/regionModel.js
 const db = require('../../config/db'); 
 
+
 const getRegions = async () => {
-  const [results] = await db.query('SELECT * FROM regions');
-  return results;
+  try {
+    const [results] = await db.query(`
+       SELECT regions.*, countries.name, countries.id AS countryId
+       FROM countries 
+       JOIN regions ON regions.country_id = countries.id;
+
+    `);
+    return results; // This will return an array of countries with their region names
+  } catch (error) {
+    console.error('Error fetching countries with regions:', error);
+    throw error; // Rethrow or handle the error as needed
+  }
 };
 
 const createRegion = async ({ region_name, country_id, creator_id }) => {

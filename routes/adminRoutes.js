@@ -100,9 +100,10 @@ router.delete('/resource/countries/:id', deleteOldCountry);
 
 // Region Routes API
 router.get('/resource/regions', getAllRegions);
-router.post('/resource/new/region', createNewRegion);
-router.put('/resource/update/region', updateOldRegion);
-router.delete('/resource/delete/region', deleteOldRegion);
+router.post('/resource/region', createNewRegion);
+router.put('/resource/region/:id', updateOldRegion);
+router.delete('/resource/region/:id',deleteOldRegion );
+
 
 // Category Routes API
 router.get('/resource/categories', getAllCategories);
