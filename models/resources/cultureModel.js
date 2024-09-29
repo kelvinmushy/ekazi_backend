@@ -10,11 +10,11 @@ const getCultures = async () => {
 };
 
 const createCulture = async (culture) => {
-  const { name } = culture;
+  const { culture_name } = culture;
   const { creator_id } = culture;
 
   try {
-    const [result] = await db.query('INSERT INTO cultures (creator_id, culture_name) VALUES (?, ?)', [creator_id, name]);
+    const [result] = await db.query('INSERT INTO cultures (creator_id, culture_name) VALUES (?, ?)', [creator_id, culture_name]);
     return result.insertId;
   } catch (error) {
     throw new Error('Failed to create culture in the database');
@@ -22,10 +22,10 @@ const createCulture = async (culture) => {
 };
 
 const updateCulture = async (culture) => {
-  const { updator_id,name,  id } = culture;
+  const { updator_id,culture_name,  id } = culture;
 
   try {
-    const [result] = await db.query('UPDATE cultures SET  updator_id = ? ,culture_name = ? WHERE id = ?', [updator_id,name,id]);
+    const [result] = await db.query('UPDATE cultures SET  updator_id = ? ,culture_name = ? WHERE id = ?', [updator_id,culture_name,id]);
     if (result.affectedRows === 0) {
       throw new Error('No culture found with the given ID');
     }

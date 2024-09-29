@@ -11,7 +11,8 @@ const getAllSkills = async (req, res) => {
 };
 
 const createNewSkill = async (req, res) => {
-  const { skill_name, creator_id } = req.body;
+  const { skill_name} = req.body;
+  const creator_id=6;
   try {
     const skillId = await createSkill({ skill_name, creator_id });
     res.status(201).json({ skillId });
@@ -21,9 +22,11 @@ const createNewSkill = async (req, res) => {
 };
 
 const updateOldSkill = async (req, res) => {
-  const { id, skill_name, updator_id } = req.body;
+  const { skill_name } = req.body;
+  const id = req.params.id;
+  const updator_id=1;
   try {
-    const affectedRows = await updateSkill({ id, skill_name, updator_id });
+    const affectedRows = await updateSkill({ id, skill_name,updator_id });
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'No skill found with the given ID' });
     }
@@ -34,7 +37,7 @@ const updateOldSkill = async (req, res) => {
 };
 
 const deleteOldSkill = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteSkill(id);
     if (affectedRows === 0) {

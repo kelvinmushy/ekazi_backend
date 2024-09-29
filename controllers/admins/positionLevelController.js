@@ -21,8 +21,8 @@ const createNewPositionLevel = async (req, res) => {
 };
 
 const updateOldPositionLevel = async (req, res) => {
-  const { id, position_name, updator_id } = req.body;
-  
+  const {  position_name, updator_id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await updatePositionLevel({ id, position_name, updator_id });
     if (affectedRows === 0) {

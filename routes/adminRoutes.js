@@ -63,10 +63,10 @@ const {
   } = require('../controllers/admins/jobs/jobController');
 
 //Cultures Routes API
-router.get('/resource/cultures', getAllCultures);
-router.post('/resource/new/culture', createNewCulture);
-router.put('/resource/update/culture', updateOldCulture); // Changed to PUT
-router.delete('/resource/delete/culture', deleteOldCulture); // Changed to DELETE
+router.get('/resource/culture', getAllCultures);
+router.post('/resource/culture', createNewCulture);
+router.put('/resource/culture/:id', updateOldCulture); // Changed to PUT
+router.delete('/resource/culture/:id', deleteOldCulture); // Changed to DELETE
 
 //Experience Routes API
 router.get('/resource/experience', getAllExperiences);
@@ -83,14 +83,14 @@ router.delete('/resource/type/:id', deleteOldJobType);
 //Position Level Routes API
 router.get('/resource/position-levels', getAllPositionLevels);
 router.post('/resource/position-level', createNewPositionLevel);
-router.put('/resource/position-level', updateOldPositionLevel);
-router.delete('/resource/position-level', deleteOldPositionLevel);
+router.put('/resource/position-level/:id', updateOldPositionLevel);
+router.delete('/resource/position-level/:id', deleteOldPositionLevel);
 
 //Skill Route API
-router.get('/resource/skills', getAllSkills);
-router.post('/resource/new/skill', createNewSkill);
-router.put('/resource/update/skill', updateOldSkill);
-router.delete('/resource/delete/skill', deleteOldSkill);
+router.get('/resource/skill', getAllSkills);
+router.post('/resource/skill', createNewSkill);
+router.put('/resource/skill/:id', updateOldSkill);
+router.delete('/resource/skill/:id', deleteOldSkill);
 
 // Country Routes API
 router.get('/resource/countries', getAllCountries);

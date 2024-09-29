@@ -10,9 +10,11 @@ const getAllCultures = async (req, res) => {
 };
 
 const createNewCulture = async (req, res) => {
-  const { name, creator_id } = req.body; // Destructure both name and creator_id
+  const { culture_name,} = req.body; // Destructure both name and creator_id
+  const creator_id = 3;
+
   try {
-    const cultureId = await createCulture({ name, creator_id });
+    const cultureId = await createCulture({ culture_name, creator_id });
     res.status(201).json({ cultureId });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create culture' });
@@ -20,9 +22,11 @@ const createNewCulture = async (req, res) => {
 };
 
 const updateOldCulture = async (req, res) => {
-  const { name, updator_id, id } = req.body; // Destructure all necessary fields
+  const { culture_name } = req.body;
+  const id = req.params.id; // Destructure all necessary fields
+  const updator_id = 3;
   try {
-    const affectedRows = await updateCulture({ name, creator_id: updator_id, id }); // Pass correct parameters
+    const affectedRows = await updateCulture({ culture_name, updator_id, id }); // Pass correct parameters
     res.status(200).json({ affectedRows }); // Return affected rows
   } catch (error) {
     res.status(500).json({ error: 'Failed to update culture' });
@@ -30,7 +34,7 @@ const updateOldCulture = async (req, res) => {
 };
 
 const deleteOldCulture = async (req, res) => {
-  const { id } = req.body; // Get the culture ID to delete
+   const id = req.params.id;// Get the culture ID to delete
   try {
     const affectedRows = await deleteCulture(id); // Pass id directly
     res.status(200).json({ affectedRows }); // Return affected rows
