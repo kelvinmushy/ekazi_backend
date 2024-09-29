@@ -21,7 +21,8 @@ const createNewCountry = async (req, res) => {
 };
 
 const updateOldCountry = async (req, res) => {
-  const { id, name, citizenship, country_code, alpha_code, currency, updator_id } = req.body;
+  const { name, citizenship, country_code, alpha_code, currency, updator_id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await updateCountry({ id, name, citizenship, country_code, alpha_code, currency, updator_id });
     if (affectedRows === 0) {
