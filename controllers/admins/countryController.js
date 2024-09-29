@@ -35,7 +35,7 @@ const updateOldCountry = async (req, res) => {
 };
 
 const deleteOldCountry = async (req, res) => {
-  const { id } = req.body;
+  const id = req.params.id;
   try {
     const affectedRows = await deleteCountry(id);
     if (affectedRows === 0) {

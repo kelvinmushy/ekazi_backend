@@ -96,7 +96,7 @@ router.delete('/resource/delete/skill', deleteOldSkill);
 router.get('/resource/countries', getAllCountries);
 router.post('/resource/new/country', createNewCountry);
 router.put('/resource/update/country/:id', updateOldCountry);
-router.delete('/resource/delete/country', deleteOldCountry);
+router.delete('/resource/countries/:id', deleteOldCountry);
 
 // Region Routes API
 router.get('/resource/regions', getAllRegions);
