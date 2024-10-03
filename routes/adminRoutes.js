@@ -113,8 +113,8 @@ router.delete('/resource/category/:id', deleteOldCategory);
 
 // Job Routes API
 router.get('/jobs', getAllJobs);
-router.post('/new/job', createNewJob);
-router.put('/update/job', updateOldJob);
-router.delete('/delete/job', deleteOldJob);
+router.post('/job', createNewJob);
+router.put('/job/:id', updateOldJob);
+router.delete('/job/:id', deleteOldJob);
 
 module.exports = router;

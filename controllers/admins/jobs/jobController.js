@@ -34,23 +34,27 @@ const createNewJob = async (req, res) => {
     if (!title || !region_id || !address || !salary_from || !salary_to || !summary || !description || !expired_date || !posting_date ||!experience_id||!position_level_id) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const jobId = await createJob({ 
             title, region_id, address, salary_from, salary_to, 
             summary, description, expired_date, posting_date,experience_id,position_level_id
         });
-
+       
         // Link other attributes
-        if (type_ids && Array.isArray(type_ids)) await linkJobTypes(jobId, type_ids);
-        if (category_ids && Array.isArray(category_ids)) await linkJobCategories(jobId, category_ids);
-        if (culture_ids && Array.isArray(culture_ids)) await linkJobCultures(jobId, culture_ids);
-        if (skill_ids && Array.isArray(skill_ids)) await linkJobSkills(jobId, skill_ids);
-      
-        res.status(201).json({ jobId, message: 'Job created successfully' });
+        if (type_ids && Array.isArray(type_ids)) await linkJobTypes(connection,jobId, type_ids);
+        if (category_ids && Array.isArray(category_ids)) await linkJobCategories(connection,jobId, category_ids);
+        if (culture_ids && Array.isArray(culture_ids)) await linkJobCultures(connection,jobId, culture_ids);
+        if (skill_ids && Array.isArray(skill_ids)) await linkJobSkills(connection,jobId, skill_ids);
+        await connection.commit();
+        res.status(201).json({ jobId, message: 'Job created successfully',type_ids });
     } catch (error) {
+        await connection.rollback();
         console.error(error);
         res.status(500).json({ error: 'Failed to create job' });
+    }finally {
+        connection.release();
     }
 };
 
