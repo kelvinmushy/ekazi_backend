@@ -62,6 +62,15 @@ const {
     deleteOldJob
   } = require('../controllers/admins/jobs/jobController');
 
+//User API
+const {
+  getAllUsers,
+  createNewUser,
+  updateOldUser,
+  deleteOldUser,
+  getUser
+} = require('../controllers/users/userController');
+
 //Cultures Routes API
 router.get('/resource/culture', getAllCultures);
 router.post('/resource/culture', createNewCulture);
@@ -116,5 +125,19 @@ router.get('/jobs', getAllJobs);
 router.post('/job', createNewJob);
 router.put('/job/:id', updateOldJob);
 router.delete('/job/:id', deleteOldJob);
+
+// Route to get all users
+router.get('/users', getAllUsers);
+// Route to create a new user
+router.post('/user/', createNewUser);
+// Route to update an existing user by ID
+router.put('/user/:id', updateOldUser);
+// Route to delete a user by ID
+router.delete('/user/:id', deleteOldUser);
+
+// Route to get a user by ID
+router.get('/user/:id', getUser);
+
+
 
 module.exports = router;

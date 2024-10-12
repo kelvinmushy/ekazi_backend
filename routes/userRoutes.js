@@ -1,28 +1,29 @@
 const express = require('express');
+const {
+  getAllUsers,
+  createNewUser,
+  updateOldUser,
+  deleteOldUser
+} = require('../controllers/users/userController');
+
+const { registerUser } = require('../controllers/Auth/authController');
+
+
+
 const router = express.Router();
-const pool = require('../config/db');
+router.use(express.json());
+// Route to get all users
+router.get('/users', getAllUsers);
 
-// Get all users
-router.get('/users', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM users');
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json({ error: 'Database query failed' });
-  }
-});
+// Route to create a new user
+router.post('/', createNewUser);
 
-// Create a new user
-router.post('/users', async (req, res) => {
-  const { name, email } = req.body;
-  try {
-    const [result] = await pool.query('INSERT INTO users (name, email) VALUES (?, ?)', [name, email]);
-    res.status(201).json({ id: result.insertId, name, email });
-  } catch (error) {
-    res.status(500).json({ error: 'Database query failed' });
-  }
-});
+// Route to update an existing user by ID
+router.put('/:id', updateOldUser);
 
+// Route to delete a user by ID
+router.delete('/:id', deleteOldUser);
 
+router.post('/register', registerUser);
 
 module.exports = router;

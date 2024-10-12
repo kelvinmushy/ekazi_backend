@@ -110,7 +110,7 @@ const updateOldJob = async (req, res) => {
 
 // Delete a job
 const deleteOldJob = async (req, res) => {
-    const { id } = req.body;
+    const id = req.params.id;
     try {
         const affectedRows = await deleteJob(id);
         if (affectedRows === 0) {
