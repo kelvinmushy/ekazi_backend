@@ -4,8 +4,8 @@ const createEmployer = async (connection,user_id, otherDetails) => {
   try {
     const [result] = await connection.query(
 
-     'INSERT INTO employers (user_id,state_id,company_name,address,logo,phonenumber) VALUES (?,?,?, ?,?,?)',
-     [user_id,otherDetails.state_id,otherDetails.company_name,otherDetails.address,otherDetails.logo,otherDetails.phonenumber]
+     'INSERT INTO employers (user_id,state_id,company_name,address,logo,phonenumber,employer_email,aboutCompany) VALUES (?,?,?,?, ?,?,?,?)',
+     [user_id,otherDetails.state_id,otherDetails.company_name,otherDetails.address,otherDetails.logo,otherDetails.phonenumber,otherDetails.employer_email,otherDetails.aboutCompany]
     
     );
     return result.insertId; 
