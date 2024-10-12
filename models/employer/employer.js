@@ -1,10 +1,10 @@
 const db = require('../../config/db'); 
 
-const createEmployer = async ({user_id, otherDetails}) => {
+const createEmployer = async (connection,user_id, otherDetails) => {
   try {
-    const [result] = await db.query(
+    const [result] = await connection.query(
 
-     'INSERT INTO employers (user_id,state_id,company_name,address,logo,phonenumber) VALUES (?,?, ?, ?,?, ?)',
+     'INSERT INTO employers (user_id,state_id,company_name,address,logo,phonenumber) VALUES (?,?,?, ?,?,?)',
      [user_id,otherDetails.state_id,otherDetails.company_name,otherDetails.address,otherDetails.logo,otherDetails.phonenumber]
     
     );

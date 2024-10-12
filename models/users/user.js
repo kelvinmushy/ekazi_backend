@@ -23,9 +23,9 @@ const getUserById = async (id) => {
   }
 
 // Create a new user
-const createUser = async ({ username, password, email ,userType}) => {
+const createUser = async (connection, username, password, email ,userType) => {
   try {
-    const [result] = await db.query(
+    const [result] = await connection.query(
 
       'INSERT INTO users (username,email,password,userType) VALUES (?,?,?,?)',
 
