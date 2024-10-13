@@ -67,12 +67,17 @@ const deleteUser = async (id) => {
     throw new Error('Could not delete user');
   }
 };
-create: async (email, password, userType) => {
-    const [result] = await db.execute(
-      'INSERT INTO users (email, password, user_type) VALUES (?, ?, ?)',
-      [email, password, userType]
-    );
-    return result.insertId;
-  },
 
-module.exports = { getUsers, createUser, updateUser, deleteUser ,getUserById};
+  const findUserByUsername = async (connection, username) => {
+    const query = 'SELECT * FROM users WHERE username = ?';
+    
+    try {
+        const [rows] = await connection.query(query, [username]);
+        return rows.length > 0 ? rows[0] : null; // Return the user if found, else null
+    } catch (error) {
+        console.error('Error finding user by username:', error);
+        throw error; // Propagate the error
+    }
+};
+
+module.exports = { getUsers, createUser, updateUser, deleteUser ,getUserById,findUserByUsername};
