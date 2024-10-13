@@ -3,6 +3,7 @@ const Candidate = require('../../models/candidate/candidate');
 const { createEmployer } = require('../../models/employer/employer');
 const bcrypt = require('bcryptjs');
 const db = require('../../config/db');
+const jwt = require('jsonwebtoken'); 
 
 const registerUser = async (req, res) => {
     const { username, email, password, userType, ...otherDetails } = req.body;
@@ -31,29 +32,36 @@ const registerUser = async (req, res) => {
     }
 };
 
+
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
     const connection = await db.getConnection();
-    
+
     try {
         // Find user by username
         const user = await findUserByUsername(connection, username);
-        
+
         if (!user) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
         // Compare passwords
-        const isPasswordValid = await bcrypt.compare(password, user.password); // Ensure you retrieve the hashed password from your user model
-        
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
-        // Optionally, generate a JWT token here for session management
-        // const token = generateToken(user.id); // Implement this function as needed
+        // Generate a JWT token
+        const token = jwt.sign({ id: user.id, userType: user.userType }, process.env.JWT_SECRET, {
+            expiresIn: '1h', // Adjust the expiration time as needed
+        });
 
-        res.status(200).json({ message: 'Login successful', user }); // Optionally include token: token
+        res.status(200).json({ 
+            message: 'Login successful', 
+            token, // Send the token back to the client
+            user 
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -61,5 +69,4 @@ const loginUser = async (req, res) => {
         connection.release();
     }
 };
-
 module.exports = { registerUser, loginUser };

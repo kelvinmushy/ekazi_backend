@@ -4,6 +4,7 @@ const cors = require('cors'); // Import cors
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 
+
 require('dotenv').config();
 
 const app = express();
