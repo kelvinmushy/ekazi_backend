@@ -5,9 +5,11 @@ const {
   updateOldUser,
   deleteOldUser,
   
+  
 } = require('../controllers/users/userController');
+const { authenticateJWT } = require('../middleware/authMiddleware'); // Ensure this import is correct
 
-const { registerUser,loginUser } = require('../controllers/Auth/authController');
+const { registerUser,loginUser,changePassword } = require('../controllers/Auth/authController');
 
 
 
@@ -27,6 +29,7 @@ router.delete('/:id', deleteOldUser);
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.put('/change-password', authenticateJWT, changePassword);
 
 
 module.exports = router;

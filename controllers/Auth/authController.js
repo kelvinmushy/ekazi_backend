@@ -1,26 +1,17 @@
-const { createUser, findUserByUsername } = require('../../models/users/user');
-const Candidate = require('../../models/candidate/candidate');
-const { createEmployer } = require('../../models/employer/employer');
-const bcrypt = require('bcryptjs');
+// controllers/authController.js
+const { createUser, findUserByUsername, findUserById, updateUserPassword } = require('../../models/users/user');
 const db = require('../../config/db');
-const jwt = require('jsonwebtoken'); 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
     const { username, email, password, userType, ...otherDetails } = req.body;
     const connection = await db.getConnection();
     try {
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-        
         await connection.beginTransaction();
         const user_id = await createUser(connection, username, hashedPassword, email, userType);
-        
-        if (userType === 'candidate') {
-            await Candidate.create(user_id, otherDetails);
-        } else if (userType === 'employer') {
-            await createEmployer(connection, user_id, otherDetails);
-        }
-        
+        // Handle candidate or employer creation if needed
         await connection.commit();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -32,36 +23,22 @@ const registerUser = async (req, res) => {
     }
 };
 
-
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
     const connection = await db.getConnection();
-
     try {
-        // Find user by username
         const user = await findUserByUsername(connection, username);
-
         if (!user) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
-
-        // Compare passwords
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
-
-        // Generate a JWT token
         const token = jwt.sign({ id: user.id, userType: user.userType }, process.env.JWT_SECRET, {
-            expiresIn: '1h', // Adjust the expiration time as needed
+            expiresIn: '1h',
         });
-
-        res.status(200).json({ 
-            message: 'Login successful', 
-            token, // Send the token back to the client
-            user 
-        });
+        res.status(200).json({ message: 'Login successful', token, user });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -69,4 +46,38 @@ const loginUser = async (req, res) => {
         connection.release();
     }
 };
-module.exports = { registerUser, loginUser };
+
+const changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id; // User ID from token
+    const connection = await db.getConnection();
+
+    try {
+        const user = await findUserById(connection, userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Compare the current password with the stored hashed password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+
+        // If the password is valid, hash the new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        
+        // Update the user's password in the database
+        await updateUserPassword(connection, userId, hashedNewPassword);
+        
+        return res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    } finally {
+        connection.release();
+    }
+};
+
+
+module.exports = { registerUser, loginUser, changePassword };

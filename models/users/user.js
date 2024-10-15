@@ -79,5 +79,8 @@ const deleteUser = async (id) => {
         throw error; // Propagate the error
     }
 };
+const updateUserPassword = async (connection, userId, hashedPassword) => {
+  await connection.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+};
 
-module.exports = { getUsers, createUser, updateUser, deleteUser ,getUserById,findUserByUsername};
+module.exports = { getUsers, createUser, updateUser, deleteUser ,getUserById,findUserByUsername,updateUserPassword};
