@@ -1,5 +1,6 @@
 const { getUsers, createUser, updateUser, deleteUser,getUserById } = require('../../models/users/user');
-
+const bcrypt = require('bcryptjs');
+const db = require('../../config/db');
 const getAllUsers = async (req, res) => {
   try {
     const users = await getUsers();
@@ -27,11 +28,12 @@ const getUser = async (req, res) => {
 
 
   const createNewUser = async (req, res) => {
-    const { username, email, creator_id } = req.body;
+    const { username, email, password,userType } = req.body;
   
-    
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
-      const userId = await createUser({ username, email, creator_id });
+      const connection = await db.getConnection();
+      const userId = await createUser(connection,username, email,hashedPassword,userType );
       res.status(201).json({ userId });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create user: ' + error.message });
@@ -40,11 +42,13 @@ const getUser = async (req, res) => {
   
  
 const updateOldUser = async (req, res) => {
-    const { username, email, phone, } = req.body; // Added phone here
+    const { username, email,password,userType } = req.body; // Added phone here
     const id = req.params.id;
+    const hashedPassword = await bcrypt.hash(password, 10);
   
     try {
-      const affectedRows = await updateUser({ id, username, phone, email });
+        const connection = await db.getConnection();
+      const affectedRows = await updateUser(connection,id, username, email,hashedPassword,userType );
       if (affectedRows === 0) {
         return res.status(404).json({ error: 'No user found with the given ID' });
       }

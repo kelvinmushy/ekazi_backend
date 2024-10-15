@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await connection.beginTransaction();
-        const user_id = await createUser(connection, username, hashedPassword, email, userType);
+        const user_id = await createUser(connection, username, email,hashedPassword,userType);
         // Handle candidate or employer creation if needed
         await connection.commit();
         res.status(201).json({ message: 'User registered successfully' });
