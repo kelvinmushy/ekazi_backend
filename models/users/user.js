@@ -15,11 +15,12 @@ const getUsers = async () => {
 };
 
 // Fetch a user by ID
-const getUserById = async (id) => {
-  const connection = await db.getConnection();
+const getUserById = async (connection,id) => {
   try {
     const [results] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
+   
     return results[0]; // Return the first user found
+    
   } catch (error) {
     console.error('Error fetching user by ID:', error);
     throw new Error('Could not retrieve user');

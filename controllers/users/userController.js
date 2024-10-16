@@ -42,6 +42,7 @@ const getUser = async (req, res) => {
   
  
 const updateOldUser = async (req, res) => {
+  
     const { username, email,password,userType } = req.body; // Added phone here
     const id = req.params.id;
     const hashedPassword = await bcrypt.hash(password, 10);

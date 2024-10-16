@@ -4,8 +4,6 @@ const {
   createNewUser,
   updateOldUser,
   deleteOldUser,
-  
-  
 } = require('../controllers/users/userController');
 const { authenticateJWT } = require('../middleware/authMiddleware'); // Ensure this import is correct
 
@@ -22,7 +20,7 @@ router.get('/users', getAllUsers);
 router.post('/', createNewUser);
 
 // Route to update an existing user by ID
-router.put('/:id', updateOldUser);
+//router.put('/:id', updateOldUser);
 
 // Route to delete a user by ID
 router.delete('/:id', deleteOldUser);

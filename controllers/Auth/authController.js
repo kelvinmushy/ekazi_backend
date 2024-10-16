@@ -1,5 +1,5 @@
 // controllers/authController.js
-const { createUser, findUserByUsername, findUserById, updateUserPassword } = require('../../models/users/user');
+const { createUser, findUserByUsername, getUserById, updateUserPassword } = require('../../models/users/user');
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -53,7 +53,7 @@ const changePassword = async (req, res) => {
     const connection = await db.getConnection();
 
     try {
-        const user = await findUserById(connection, userId);
+        const user = await getUserById(connection, userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
