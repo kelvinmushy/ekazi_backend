@@ -15,7 +15,8 @@ const getAllUsers = async (req, res) => {
 const getUser = async (req, res) => {
     const id = req.params.id;
     try {
-      const user = await getUserById(id);
+      const connection = await db.getConnection();
+      const user = await getUserById(connection,id);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -43,13 +44,13 @@ const getUser = async (req, res) => {
  
 const updateOldUser = async (req, res) => {
   
-    const { username, email,password,userType } = req.body; // Added phone here
-    const id = req.params.id;
-    const hashedPassword = await bcrypt.hash(password, 10);
-  
+    const { username, email,phone } = req.body; // Added phone here
+    
+    const userId = req.params.id;
+
     try {
         const connection = await db.getConnection();
-      const affectedRows = await updateUser(connection,id, username, email,hashedPassword,userType );
+      const affectedRows = await updateUser(connection,userId, username, email,phone);
       if (affectedRows === 0) {
         return res.status(404).json({ error: 'No user found with the given ID' });
       }

@@ -47,13 +47,13 @@ const createUser = async (connection ,username, email,password, userType) => {
 };
 
 // Update an existing user
-const updateUser = async ( connection,id, username, email,password) => {
-
+const updateUser = async ( connection,userId,username,email,phone) => {
  
   try {
+    console.log(userId);
     const [result] = await connection.query(
-      'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?',
-      [ username, email,password,id]
+      'UPDATE users SET username = ?, email = ? WHERE id = ?',
+      [ username, email,userId]
     );
     return result.affectedRows > 0;
   } catch (error) {
