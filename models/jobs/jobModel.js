@@ -51,13 +51,13 @@ const getJobs = async (page = 1, limit = 2) => {
 };
 
 const createJob = async (jobData) => {
-    const { title, region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id } = jobData;
+    const { title, region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id,jobAutoRenew,applyOnline,url,emailAddress} = jobData;
     
     try {
         const [result] = await db.query(
-            `INSERT INTO jobs (title, region_id,address,experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date,posting_date) 
-             VALUES (?, ?, ?,?,?,?, ?, ?, ?, ?,?)`,
-            [title, region_id, address, experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date, posting_date]
+            `INSERT INTO jobs (title, region_id,address,experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date,posting_date,jobAutoRenew,applyOnline,url,emailAddress) 
+             VALUES (?, ?, ?,?,?,?, ?, ?, ?, ?,?,?,?,?,?)`,
+            [title, region_id, address, experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date, posting_date,jobAutoRenew,applyOnline,url,emailAddress]
         );
         return result.insertId;
     } catch (error) {
@@ -139,13 +139,13 @@ const linkJobSkills = async (connection, jobId, skillIds) => {
 };
 
 const updateJob = async (jobData) => {
-    const { id, title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date } = jobData;
+    const { id, title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date,jobAutoRenew,applyOnline,url,emailAddress } = jobData;
 
     try {
         const [result] = await db.query(
             `UPDATE jobs SET title = ?, region_id = ?, address = ?,experience_id=?,position_level_id=?, salary_from = ?, salary_to = ?, summary = ?, description = ?, 
-             expired_date = ?, posting_date = ? WHERE id = ?`,
-            [title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date, id]
+             expired_date = ?, posting_date = ?,jobAutoRenew= ?,applyOnline= ?,url= ?,emailAddress= ? WHERE id = ?`,
+            [title, region_id, address,experience_id,position_level_id, salary_from, salary_to, summary, description, expired_date, posting_date,jobAutoRenew,applyOnline,url,emailAddress, id]
         );
         return result.affectedRows;
     } catch (error) {

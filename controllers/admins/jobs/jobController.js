@@ -27,7 +27,7 @@ const createNewJob = async (req, res) => {
         title, region_id, address, salary_from, salary_to, 
         skill_ids, type_ids, category_ids, culture_ids, 
         summary, description, expired_date, posting_date,
-        experience_id, position_level_id
+        experience_id, position_level_id,jobAutoRenew,applyOnline,url,emailAddress
     } = req.body;
 
     // Validate required fields
@@ -39,7 +39,7 @@ const createNewJob = async (req, res) => {
         await connection.beginTransaction();
         const jobId = await createJob({ 
             title, region_id, address, salary_from, salary_to, 
-            summary, description, expired_date, posting_date,experience_id,position_level_id
+            summary, description, expired_date, posting_date,experience_id,position_level_id,jobAutoRenew,applyOnline,url,emailAddress
         });
        
         // Link other attributes
@@ -64,7 +64,7 @@ const updateOldJob = async (req, res) => {
         id, title, region_id, address, salary_from, salary_to, 
         type_ids, category_ids, culture_ids, skill_ids, 
         summary, description, expired_date, posting_date,
-        experience_id, position_level_id
+        experience_id, position_level_id,jobAutoRenew,applyOnline,url,emailAddress
     } = req.body;
 
     const connection = await db.getConnection();
@@ -74,7 +74,7 @@ const updateOldJob = async (req, res) => {
         // Update the job itself
         const affectedRows = await updateJob({ 
             id, title, region_id, address, salary_from, salary_to, 
-            summary, description, expired_date, posting_date ,experience_id,position_level_id
+            summary, description, expired_date, posting_date ,experience_id,position_level_id,jobAutoRenew,applyOnline,url,emailAddress
         });
 
         if (affectedRows === 0) {
