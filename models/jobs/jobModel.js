@@ -1,9 +1,10 @@
 const db = require('../../config/db');
-const getJobs = async (page = 1, limit = 2) => {
+const getJobs = async (page = 1, limit = 2, status = 'all') => {
     try {
         // Calculate the offset
         const offset = (page - 1) * limit;
 
+        // Define the SQL query with dynamic WHERE clause based on status
         const query = `
             SELECT 
                 j.*, 
@@ -27,12 +28,20 @@ const getJobs = async (page = 1, limit = 2) => {
                 job_skills js ON j.id = js.job_id
             LEFT JOIN 
                 skills s ON js.skill_id = s.id
+            WHERE 
+                1=1
+                AND (
+                    (? = 'active' AND j.expired_date > NOW())    -- Active jobs (expiry date in future)
+                    OR (? = 'expired' AND j.expired_date < NOW()) -- Expired jobs (expiry date in past)
+                    OR (? = 'all')                              -- No filtering for all jobs
+                )
             GROUP BY 
                 j.id
             LIMIT ? OFFSET ?;  -- Use LIMIT and OFFSET for pagination
         `;
 
-        const [results] = await db.query(query, [limit, offset]);
+        // Execute the query with the correct parameters
+        const [results] = await db.query(query, [status, status, status, limit, offset]);
 
         // Transform the result to split comma-separated values into arrays
         return results.map(job => ({
@@ -49,6 +58,7 @@ const getJobs = async (page = 1, limit = 2) => {
         throw new Error('Failed to fetch jobs');
     }
 };
+
 
 const createJob = async (jobData) => {
     const { title, region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id,jobAutoRenew,applyOnline,url,emailAddress} = jobData;

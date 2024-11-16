@@ -12,9 +12,10 @@ const db = require('../../../config/db');
 
 // Fetch all jobs with pagination
 const getAllJobs = async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+   
+    const { page = 1, limit = 10 ,status} = req.query;
     try {
-        const jobs = await getJobs(page, limit);
+        const jobs = await getJobs(page, limit,status);
         res.json(jobs);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch jobs' });
