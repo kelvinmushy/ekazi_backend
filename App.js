@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); // Import cors
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
-
+const employerRoutes=require('./routes/employer/employerRoutes')
 
 require('dotenv').config();
 
@@ -19,6 +19,10 @@ app.use(bodyParser.json());
 
 // Define routes
 app.use('/api/admin', adminRoutes);
+
+//employer Routes
+app.use('/api/employers/', employerRoutes);
+
 app.use('/api', userRoutes);
 
 
