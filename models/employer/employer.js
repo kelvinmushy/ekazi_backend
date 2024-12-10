@@ -53,13 +53,13 @@ const createEmployer = async (connection,user_id, otherDetails) => {
 
 
 // Update employer
-const updateEmployer = async (employerId, companyName, address, logo, phoneNumber, companySize, employerEmail, aboutCompany, region, industry, twitter, facebook, linkedin) => {
+const updateEmployer = async (employerId, companyName, address, logo, phonenumber, companySize, employerEmail, aboutCompany, region, industry, twitter, facebook, linkedin) => {
   try {
     // Replace undefined with null to prevent SQL errors
     companyName = companyName === undefined ? null : companyName;
     address = address === undefined ? null : address;
     logo = logo === undefined ? null : logo;
-    phoneNumber = phoneNumber === undefined ? null : phoneNumber;
+    phonenumber = phonenumber === undefined ? null : phonenumber;
     companySize = companySize === undefined ? null : companySize;
     employerEmail = employerEmail === undefined ? null : employerEmail;
     aboutCompany = aboutCompany === undefined ? null : aboutCompany;
@@ -92,7 +92,7 @@ const updateEmployer = async (employerId, companyName, address, logo, phoneNumbe
       companyName, 
       address, 
       logo, 
-      phoneNumber, 
+      phonenumber, 
       companySize, 
       employerEmail, 
       aboutCompany, 
@@ -132,7 +132,7 @@ const getEmployerByUserId = async (user_id) => {
   e.company_name,
   e.address,
   e.logo,
-  e.phoneNumber,
+  e.phonenumber,
   e.company_size,
   e.employer_email,
   e.aboutCompany,
@@ -140,6 +140,8 @@ const getEmployerByUserId = async (user_id) => {
   e.twitter,
   e.facebook,
   e.linkedin,
+   e.industry_id,
+    e.state_id,
   i.industry_name 
 FROM employers e
 JOIN user_employers ue ON e.id = ue.employer_id
