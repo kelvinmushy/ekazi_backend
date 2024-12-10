@@ -17,7 +17,7 @@ router.get('/user/:user_id', getEmployerByUser);
 router.post('/employers', createNewEmployer);
 
 // Update employer
-router.put('/employers/:id', updateOldEmployer);
+router.put('/update/:id', updateOldEmployer);
 
 // Delete employer
 router.delete('/employers/:id', deleteOldEmployer);

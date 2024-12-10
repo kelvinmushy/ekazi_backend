@@ -53,15 +53,68 @@ const createEmployer = async (connection,user_id, otherDetails) => {
 
 
 // Update employer
-const updateEmployer = async (id, company_name, address, logo, phone_number, employer_email, aboutCompany) => {
-  const query = `
-    UPDATE employer 
-    SET company_name = ?, address = ?, logo = ?, phone_number = ?, employer_email = ?, aboutCompany = ? 
-    WHERE id = ?
-  `;
-  const [result] = await db.execute(query, [company_name, address, logo, phone_number, employer_email, aboutCompany, id]);
-  return result.affectedRows;
+const updateEmployer = async (employerId, companyName, address, logo, phoneNumber, companySize, employerEmail, aboutCompany, region, industry, twitter, facebook, linkedin) => {
+  try {
+    // Replace undefined with null to prevent SQL errors
+    companyName = companyName === undefined ? null : companyName;
+    address = address === undefined ? null : address;
+    logo = logo === undefined ? null : logo;
+    phoneNumber = phoneNumber === undefined ? null : phoneNumber;
+    companySize = companySize === undefined ? null : companySize;
+    employerEmail = employerEmail === undefined ? null : employerEmail;
+    aboutCompany = aboutCompany === undefined ? null : aboutCompany;
+    region = region === undefined ? null : region;
+    industry = industry === undefined ? null : industry;
+    twitter = twitter === undefined ? null : twitter;
+    facebook = facebook === undefined ? null : facebook;
+    linkedin = linkedin === undefined ? null : linkedin;
+
+    const query = `
+      UPDATE employers
+      SET 
+        company_name = ?, 
+        address = ?, 
+        logo = ?, 
+        phonenumber = ?, 
+        company_size = ?, 
+        employer_email = ?, 
+        aboutCompany = ?, 
+        state_id = ?,  -- Assuming region is a state ID
+        industry_id = ?,  -- Assuming industry is an industry ID
+        twitter = ?, 
+        facebook = ?, 
+        linkedin = ? 
+      WHERE id = ?
+    `;
+
+    // Execute the query with parameters
+    const [result] = await db.execute(query, [
+      companyName, 
+      address, 
+      logo, 
+      phoneNumber, 
+      companySize, 
+      employerEmail, 
+      aboutCompany, 
+      region, 
+      industry, 
+      twitter, 
+      facebook, 
+      linkedin, 
+      employerId  // Use the employer_id to update the correct employer
+    ]);
+
+    // Return affected rows count
+    return result.affectedRows;
+  } catch (error) {
+    console.error("Error executing SQL query:", error.message); // Prints the error message
+    console.error("SQL Query:", error.sql); // Optionally print the query
+    console.error("SQL Params:", error.parameters); // Optionally print the parameters
+    throw new Error("Failed to update employer information.");
+  }
 };
+
+
 
 // Delete employer
 const deleteEmployer = async (id) => {
@@ -79,7 +132,7 @@ const getEmployerByUserId = async (user_id) => {
   e.company_name,
   e.address,
   e.logo,
-  e.phonenumber,
+  e.phoneNumber,
   e.company_size,
   e.employer_email,
   e.aboutCompany,
@@ -98,5 +151,14 @@ WHERE ue.user_id = ?;
   return rows[0]; // Return the first result if exists, as user can be linked to one employer
 }
 
+// Function to get employer_id from user_employers table based on user_id
+const getEmployerIdFromUser = async (userId) => {
+  const query = `SELECT employer_id FROM user_employers WHERE user_id = ?`;
+  const [rows] = await db.execute(query, [userId]);
+  
+  // Return the employer_id if found, otherwise return null
+  return rows.length > 0 ? rows[0].employer_id : null;
+};
 
-module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId };
+
+module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser };

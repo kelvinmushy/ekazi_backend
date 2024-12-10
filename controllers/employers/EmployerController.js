@@ -1,6 +1,6 @@
 // controllers/employerController.js
 
-const { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId } = require('../../models/employer/employer');
+const { getEmployerIdFromUser,getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId } = require('../../models/employer/employer');
 
 // Get all employers
 const getAllEmployers = async (req, res) => {
@@ -42,20 +42,66 @@ const createNewEmployer = async (req, res) => {
 
 // Update employer
 const updateOldEmployer = async (req, res) => {
-  const { id } = req.params;
-  const { company_name, address, logo, phone_number, employer_email, aboutCompany } = req.body;
-
-  try {
-    const affectedRows = await updateEmployer(id, company_name, address, logo, phone_number, employer_email, aboutCompany);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Employer not found or no changes made' });
+    const { id } = req.params;
+  
+    const { 
+      companyName, 
+      address, 
+      logo, 
+      phoneNumber,  // Changed to match the parameter name
+      companySize, 
+      employerEmail, 
+      aboutCompany, 
+      region, 
+      industry, 
+      twitter, 
+      facebook, 
+      linkedin 
+    } = req.body;
+  
+    try {
+      // Validate inputs if needed
+      if (!id || !companyName || !address) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+     // Fetch the employer_id from the user_employers table based on the user id
+     const employerId = await getEmployerIdFromUser(id);
+    
+     // If no employer_id found, return an error
+     if (!employerId) {
+       return res.status(404).json({ error: 'Employer not found for the given user id' });
+     }
+ 
+      // Call the updateEmployer function
+      const affectedRows = await updateEmployer(
+        employerId, 
+        companyName, 
+        address, 
+        logo, 
+        phoneNumber, 
+        companySize, 
+        employerEmail, 
+        aboutCompany, 
+        region, 
+        industry, 
+        twitter, 
+        facebook, 
+        linkedin
+      );
+  
+      if (affectedRows === 0) {
+        return res.status(404).json({ error: 'Employer not found or no changes made' });
+      }
+  
+      // Respond with success
+      res.status(200).json({ affectedRows });
+  
+    } catch (error) {
+      console.error('Error updating employer:', error);
+      res.status(500).json({ error: 'Failed to update employer' });
     }
-    res.status(200).json({ affectedRows });
-  } catch (error) {
-    console.error('Error updating employer:', error);
-    res.status(500).json({ error: 'Failed to update employer' });
-  }
-};
+  };
+  
 
 // Delete employer
 const deleteOldEmployer = async (req, res) => {
