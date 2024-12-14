@@ -2,12 +2,20 @@ const { getUsers, createUser, updateUser, deleteUser,getUserById } = require('..
 const bcrypt = require('bcryptjs');
 const db = require('../../config/db');
 
-
 const getAllUsers = async (req, res) => {
+  // Extract the employer_id from the route parameter
+  const employer_id = req.params.employer_id;
+ 
+
   try {
-    const users = await getUsers();
+    // Pass employer_id to the getUsers function to fetch users for the specific employer
+    const users = await getUsers(employer_id);
+
+    // Return the list of users as a response
     res.json(users);
   } catch (error) {
+    // Handle errors and send a response with status 500
+    console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
@@ -31,12 +39,14 @@ const getUser = async (req, res) => {
 
 
   const createNewUser = async (req, res) => {
-    const { username, email, password,userType } = req.body;
+    const {username, email, password,userType,employer_id } = req.body;
   
+       console.log(req.body)
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
       const connection = await db.getConnection();
-      const userId = await createUser(connection,username, email,hashedPassword,userType );
+      const userId = await createUser(connection,username, email,hashedPassword,userType,employer_id);
+     
       res.status(201).json({ userId });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create user: ' + error.message });
@@ -66,6 +76,7 @@ const updateOldUser = async (req, res) => {
 
 const deleteOldUser = async (req, res) => {
   const id = req.params.id;
+ 
   try {
     const affectedRows = await deleteUser(id);
     if (affectedRows === 0) {
