@@ -14,6 +14,6 @@ router.get('/get', getAllJobs);
 router.post('/create', createNewJob);
 router.put('/update/:id', updateOldJob);
 router.delete('/delete/:id', deleteOldJob);
-router.get('/counts', getJobCounts);
+router.get('/counts/:employerId', getJobCounts);
 
 module.exports = router;

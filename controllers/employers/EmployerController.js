@@ -31,8 +31,10 @@ const getEmployer = async (req, res) => {
 // Create a new employer
 const createNewEmployer = async (req, res) => {
   const { company_name, address, logo, phone_number, employer_email, aboutCompany, state_id } = req.body;
+  console.log(req.body);
   try {
-    const employerId = await createEmployer(company_name, address, logo, phonenumber, employer_email, aboutCompany, state_id);
+    const employerId = await createEmployer(company_name, address, logo, phone_number, employer_email, aboutCompany, state_id);
+    await userEmployer (connection, user_id, employerId) 
     res.status(201).json({ employerId });
   } catch (error) {
     console.error('Error creating employer:', error);

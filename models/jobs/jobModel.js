@@ -1,10 +1,10 @@
 const db = require('../../config/db');
-const getJobs = async (page = 1, limit = 2, status = 'all') => {
+const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
     try {
-        // Calculate the offset
+        // Calculate the offset for pagination
         const offset = (page - 1) * limit;
 
-        // Define the SQL query with dynamic WHERE clause based on status
+        // Define the SQL query with dynamic WHERE clause based on status and employer_id
         const query = `
             SELECT 
                 j.*, 
@@ -29,7 +29,7 @@ const getJobs = async (page = 1, limit = 2, status = 'all') => {
             LEFT JOIN 
                 skills s ON js.skill_id = s.id
             WHERE 
-                1=1
+                j.employer_id = ?  -- Filter by employer_id
                 AND (
                     (? = 'active' AND j.expired_date > NOW())    -- Active jobs (expiry date in future)
                     OR (? = 'expired' AND j.expired_date < NOW()) -- Expired jobs (expiry date in past)
@@ -41,7 +41,7 @@ const getJobs = async (page = 1, limit = 2, status = 'all') => {
         `;
 
         // Execute the query with the correct parameters
-        const [results] = await db.query(query, [status, status, status, limit, offset]);
+        const [results] = await db.query(query, [employer_id, status, status, status, limit, offset]);
 
         // Transform the result to split comma-separated values into arrays
         return results.map(job => ({
@@ -61,13 +61,13 @@ const getJobs = async (page = 1, limit = 2, status = 'all') => {
 
 
 const createJob = async (jobData) => {
-    const { title, region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id,jobAutoRenew,applyOnline,url,emailAddress} = jobData;
+    const { title, employer_id,region_id, address, salary_from, position_level_id,salary_to, summary, description, expired_date, posting_date,experience_id,jobAutoRenew,applyOnline,url,emailAddress} = jobData;
     
     try {
         const [result] = await db.query(
-            `INSERT INTO jobs (title, region_id,address,experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date,posting_date,jobAutoRenew,applyOnline,url,emailAddress) 
-             VALUES (?, ?, ?,?,?,?, ?, ?, ?, ?,?,?,?,?,?)`,
-            [title, region_id, address, experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date, posting_date,jobAutoRenew,applyOnline,url,emailAddress]
+            `INSERT INTO jobs (title,employer_id, region_id,address,experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date,posting_date,jobAutoRenew,applyOnline,url,emailAddress) 
+             VALUES (?,?, ?, ?,?,?,?, ?, ?, ?, ?,?,?,?,?,?)`,
+            [title,employer_id, region_id, address, experience_id,position_level_id,salary_from, salary_to, summary, description, expired_date, posting_date,jobAutoRenew,applyOnline,url,emailAddress]
         );
         return result.insertId;
     } catch (error) {
@@ -177,32 +177,34 @@ const deleteJob = async (id) => {
         throw new Error('Failed to delete job');
     }
 };
-const getJobCount = async () => {
+
+const getJobCount = async (employer_id) => {
     try {
-        // Query to count the active jobs
+        // Query to count the active jobs for the specific employer
         const activeQuery = `
             SELECT COUNT(*) AS count
             FROM jobs
-            WHERE expired_date > NOW();
+            WHERE employer_id = ? AND expired_date > NOW();
         `;
 
-        // Query to count the expired jobs
+        // Query to count the expired jobs for the specific employer
         const expiredQuery = `
             SELECT COUNT(*) AS count
             FROM jobs
-            WHERE expired_date < NOW();
+            WHERE employer_id = ? AND expired_date < NOW();
         `;
 
-        // Query to count all jobs
+        // Query to count all jobs for the specific employer
         const allQuery = `
             SELECT COUNT(*) AS count
-            FROM jobs;
+            FROM jobs
+            WHERE employer_id = ?;
         `;
 
-        // Execute queries
-        const [activeResult] = await db.query(activeQuery);
-        const [expiredResult] = await db.query(expiredQuery);
-        const [allResult] = await db.query(allQuery);
+        // Execute queries with the employer_id
+        const [activeResult] = await db.query(activeQuery, [employer_id]);
+        const [expiredResult] = await db.query(expiredQuery, [employer_id]);
+        const [allResult] = await db.query(allQuery, [employer_id]);
 
         // Return the counts as an object
         return {
@@ -215,6 +217,7 @@ const getJobCount = async () => {
         throw new Error('Failed to fetch job counts');
     }
 };
+
 
 module.exports = { 
     getJobs, 

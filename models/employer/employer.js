@@ -18,7 +18,7 @@
 
 // module.exports = {createEmployer};
 // models/employer/employer.js
-
+const {userEmployer} = require('../../models/users/user');
 const db = require('../../config/db');
 
 // Get all employers
@@ -36,20 +36,36 @@ const getEmployerById = async (id) => {
 };
 
 
-const createEmployer = async (connection,user_id, otherDetails) => {
+const createEmployer = async (connection, user_id, otherDetails) => {
   try {
     const [result] = await connection.query(
-
-     'INSERT INTO employers (user_id,state_id,company_name,address,logo,phonenumber,employer_email,aboutCompany) VALUES (?,?,?,?, ?,?,?,?)',
-     [user_id,otherDetails.state_id,otherDetails.company_name,otherDetails.address,otherDetails.logo,otherDetails.phonenumber,otherDetails.employer_email,otherDetails.aboutCompany]
-    
+      'INSERT INTO employers (user_id, state_id, company_name, address, logo, phonenumber, employer_email, aboutCompany) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        user_id,
+        otherDetails.state_id,
+        otherDetails.company_name,
+        otherDetails.address,
+        otherDetails.logo,
+        otherDetails.phonenumber,
+        otherDetails.employer_email,
+        otherDetails.aboutCompany,
+      ]
     );
-    return result.insertId; 
+
+    // Extract employer_id from the result
+    const employer_id = result.insertId; // The employer ID returned after the insertion
+
+    // Link the user to the employer
+    await userEmployer(connection, user_id, employer_id);
+    
+    return employer_id; // Return the employer_id to be used elsewhere
+
   } catch (error) {
-    console.error('Error creating user:', error);
-    throw new Error('Could not create user');
+    console.error('Error creating employer:', error);
+    throw new Error('Could not create employer');
   }
 };
+
 
 
 // Update employer

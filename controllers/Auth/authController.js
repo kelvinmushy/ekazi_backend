@@ -1,16 +1,27 @@
 // controllers/authController.js
 const { createUser, UserEmployer,findUserByUsername, getUserById, updateUserPassword,getUserEmployer } = require('../../models/users/user');
+const{getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser }=require('../../models/employer/employer');
+
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
     const { username, email, password, userType, ...otherDetails } = req.body;
+
+    
     const connection = await db.getConnection();
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await connection.beginTransaction();
         const user_id = await createUser(connection, username, email,hashedPassword,userType);
+        //handle save employer details
+        if (userType === 'employer') {
+             await createEmployer(connection, user_id, otherDetails); // Save employer specific details
+             
+        } else if (userType === 'applicant') {
+            //await createApplicantDetails(connection, user_id, otherDetails); // Save applicant specific details
+        }
         // Handle candidate or employer creation if needed
         await connection.commit();
         res.status(201).json({ message: 'User registered successfully' });
@@ -95,11 +106,14 @@ const loginUser = async (req, res) => {
         }
 
         // Step 1: Check if the user is an employer
+        
         let employerId = null;
         if (user.userType === 'employer') {
+            console.log('kelvin cosmas is',user.userType );
             // Step 2: Fetch the employer_id from the user_employer table
             const userEmployer = await getUserEmployer(user.id);
 
+              console.log(userEmployer);
             if (!userEmployer) {
                 return res.status(404).json({ message: 'Employer record not found' });
             }

@@ -14,9 +14,9 @@ const db = require('../../config/db');
 // Fetch all jobs with pagination
 const getAllJobs = async (req, res) => {
    
-    const { page = 1, limit = 10 ,status} = req.query;
+    const { page = 1, limit = 10 ,status,employer_id} = req.query;
     try {
-        const jobs = await getJobs(page, limit,status);
+        const jobs = await getJobs(page, limit,status,employer_id);
         res.json(jobs);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch jobs' });
@@ -25,8 +25,10 @@ const getAllJobs = async (req, res) => {
 
 // Create a new job
 const createNewJob = async (req, res) => {
+
+    console.log(req.body);
     const { 
-        title, region_id, address, salary_from, salary_to, 
+        title,employer_id, region_id,address, salary_from, salary_to, 
         skill_ids, type_ids, category_ids, culture_ids, 
         summary, description, expired_date, posting_date,
         experience_id, position_level_id,jobAutoRenew,applyOnline,url,emailAddress
@@ -40,7 +42,7 @@ const createNewJob = async (req, res) => {
     try {
         await connection.beginTransaction();
         const jobId = await createJob({ 
-            title, region_id, address, salary_from, salary_to, 
+            title,employer_id, region_id, address, salary_from, salary_to, 
             summary, description, expired_date, posting_date,experience_id,position_level_id,jobAutoRenew,applyOnline,url,emailAddress
         });
        
@@ -123,15 +125,23 @@ const deleteOldJob = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete job' });
     }
 };
-
-const getJobCounts=async(req,res)=>{
+const getJobCounts = async (req, res) => {
+   
     try {
-        const jobCounts = await getJobCount();
+        const employer_id = req.params.employerId;
+        console.log(employer_id);
+       // Destructure employer_id from params
+        if (!employer_id) {
+            return res.status(400).json({ message: 'Employer ID is required' }); // Handle case when employer_id is not provided
+        }
+
+        const jobCounts = await getJobCount(employer_id); // Call the function to get job counts for the employer
         res.json(jobCounts); // Send the job counts back to the client
+
     } catch (error) {
-        console.error("Error fetching job counts:", error);
-        res.status(500).json({ message: 'Failed to fetch job counts' });
-    } 
-}
+        console.error("Error fetching job counts:", error); 
+        res.status(500).json({ message: 'Failed to fetch job counts' }); // Return 500 on failure
+    }
+};
 
 module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts };

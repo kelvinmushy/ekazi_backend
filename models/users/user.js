@@ -150,6 +150,7 @@ const deleteUserEmployer = async (id) => {
 
 // Fetch employer by user ID
 const getUserEmployer = async (userId) => {
+  console.log("user IId",userId);
   const connection = await db.getConnection();
   try {
     const [result] = await connection.query(
@@ -175,5 +176,5 @@ module.exports = {
   userEmployer,
   getUserEmployer,
   deleteUserEmployer,
-  getUsers
+  getUsers,
 };
