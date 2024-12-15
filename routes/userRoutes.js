@@ -6,7 +6,7 @@ const {
   deleteOldUser,
 } = require('../controllers/users/userController');
 const { authenticateJWT } = require('../middleware/authMiddleware'); // Ensure this import is correct
-
+const upload = require('../middleware/multerMiddleware'); // Import multer middleware
 const { registerUser,loginUser,changePassword } = require('../controllers/Auth/authController');
 
 
@@ -25,7 +25,7 @@ router.post('/', createNewUser);
 // Route to delete a user by ID
 router.delete('/:id', deleteOldUser);
 
-router.post('/register', registerUser);
+router.post('/register',upload,registerUser);
 router.post('/login', loginUser);
 router.put('/change-password', authenticateJWT, changePassword);
 

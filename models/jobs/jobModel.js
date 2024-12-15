@@ -1,11 +1,16 @@
 const db = require('../../config/db');
 const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
     try {
+        // If employer_id is a string "null", convert it to null
+        if (employer_id === 'null') {
+            employer_id = null;
+        }
+
         // Calculate the offset for pagination
         const offset = (page - 1) * limit;
 
-        // Define the SQL query with dynamic WHERE clause based on status and employer_id
-        const query = `
+        // Start constructing the base SQL query
+        let query = `
             SELECT 
                 j.*, 
                 GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
@@ -29,19 +34,39 @@ const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
             LEFT JOIN 
                 skills s ON js.skill_id = s.id
             WHERE 
-                j.employer_id = ?  -- Filter by employer_id
-                AND (
-                    (? = 'active' AND j.expired_date > NOW())    -- Active jobs (expiry date in future)
-                    OR (? = 'expired' AND j.expired_date < NOW()) -- Expired jobs (expiry date in past)
-                    OR (? = 'all')                              -- No filtering for all jobs
-                )
-            GROUP BY 
-                j.id
-            LIMIT ? OFFSET ?;  -- Use LIMIT and OFFSET for pagination
         `;
 
+        // Add employer_id condition if it's not null
+        if (employer_id !== null) {
+            query += ` j.employer_id = ? AND `;
+        }
+
+        // Add the status filter (active, expired, or all)
+        query += `
+            (
+                (? = 'active' AND j.expired_date > NOW())    -- Active jobs (expiry date in future)
+                OR (? = 'expired' AND j.expired_date < NOW()) -- Expired jobs (expiry date in past)
+                OR (? = 'all')                              -- No filtering for all jobs
+            )
+        `;
+
+        // Add pagination (LIMIT and OFFSET)
+        query += ` GROUP BY j.id LIMIT ? OFFSET ?;`;
+
+        // Prepare the parameters based on whether employer_id is null or not
+        const params = employer_id !== null
+            ? [employer_id, status, status, status, limit, offset] // If employer_id is not null
+            : [status, status, status, limit, offset]; // If employer_id is null, no employer_id filter
+
+        // Log the generated query and parameters for debugging
+        console.log("Generated SQL Query:", query);
+        console.log("Query Parameters:", params);
+
         // Execute the query with the correct parameters
-        const [results] = await db.query(query, [employer_id, status, status, status, limit, offset]);
+        const [results] = await db.query(query, params);
+
+        // Log the results for debugging
+        console.log("Results from DB:", results);
 
         // Transform the result to split comma-separated values into arrays
         return results.map(job => ({
@@ -58,6 +83,8 @@ const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
         throw new Error('Failed to fetch jobs');
     }
 };
+
+
 
 
 const createJob = async (jobData) => {
@@ -180,31 +207,50 @@ const deleteJob = async (id) => {
 
 const getJobCount = async (employer_id) => {
     try {
-        // Query to count the active jobs for the specific employer
-        const activeQuery = `
+        // If employer_id is a string "null", convert it to null
+        if (employer_id === 'null') {
+            employer_id = null;
+        }
+
+        // Query to count the active jobs
+        let activeQuery = `
             SELECT COUNT(*) AS count
             FROM jobs
-            WHERE employer_id = ? AND expired_date > NOW();
+            WHERE expired_date > NOW();
         `;
-
-        // Query to count the expired jobs for the specific employer
-        const expiredQuery = `
+        let expiredQuery = `
             SELECT COUNT(*) AS count
             FROM jobs
-            WHERE employer_id = ? AND expired_date < NOW();
+            WHERE expired_date < NOW();
         `;
-
-        // Query to count all jobs for the specific employer
-        const allQuery = `
+        let allQuery = `
             SELECT COUNT(*) AS count
-            FROM jobs
-            WHERE employer_id = ?;
+            FROM jobs;
         `;
 
-        // Execute queries with the employer_id
-        const [activeResult] = await db.query(activeQuery, [employer_id]);
-        const [expiredResult] = await db.query(expiredQuery, [employer_id]);
-        const [allResult] = await db.query(allQuery, [employer_id]);
+        // If employer_id is provided, filter by employer_id
+        if (employer_id !== null) {
+            activeQuery = `
+                SELECT COUNT(*) AS count
+                FROM jobs
+                WHERE employer_id = ? AND expired_date > NOW();
+            `;
+            expiredQuery = `
+                SELECT COUNT(*) AS count
+                FROM jobs
+                WHERE employer_id = ? AND expired_date < NOW();
+            `;
+            allQuery = `
+                SELECT COUNT(*) AS count
+                FROM jobs
+                WHERE employer_id = ?;
+            `;
+        }
+
+        // Execute the queries with the employer_id (if it's not null)
+        const [activeResult] = await db.query(activeQuery, employer_id !== null ? [employer_id] : []);
+        const [expiredResult] = await db.query(expiredQuery, employer_id !== null ? [employer_id] : []);
+        const [allResult] = await db.query(allQuery, employer_id !== null ? [employer_id] : []);
 
         // Return the counts as an object
         return {
@@ -217,6 +263,7 @@ const getJobCount = async (employer_id) => {
         throw new Error('Failed to fetch job counts');
     }
 };
+
 
 
 module.exports = { 

@@ -1,7 +1,9 @@
 // controllers/employerController.js
 
 const { getEmployerIdFromUser,getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId } = require('../../models/employer/employer');
-
+const db = require('../../config/db');
+const fs = require('fs');
+const path = require('path');
 // Get all employers
 const getAllEmployers = async (req, res) => {
   try {
@@ -137,4 +139,109 @@ const getEmployerByUser = async (req, res) => {
   
 
 
-module.exports = { getAllEmployers, getEmployer, createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser};
+ 
+
+  const uploadLogo = async (req, res) => {
+    try {
+      // Check if the file is uploaded
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+  
+      // Get employerId from request params
+      const { employerId } = req.params;
+  
+      // Generate the new file path for the uploaded logo
+      const logoPath = `/uploads/logos/${req.file.filename}`;
+  
+      // Connect to the database
+      const connection = await db.getConnection();
+  
+      // Check if the employer already has a logo
+      const checkQuery = 'SELECT logo FROM employers WHERE id = ?';
+      const [existingLogo] = await connection.query(checkQuery, [employerId]);
+  
+      if (existingLogo.length > 0 && existingLogo[0].logo) {
+        // If a logo already exists, delete the old one
+        const oldLogoPath = existingLogo[0].logo.replace('/uploads', 'uploads'); // Correct the path for the file system
+        const absoluteOldLogoPath = path.join(__dirname, '..', '..', oldLogoPath); // Create an absolute file path
+  
+        console.log('Trying to delete old logo at path:', absoluteOldLogoPath);
+  
+        // Check if the old logo exists and delete it
+        if (fs.existsSync(absoluteOldLogoPath)) {
+          fs.unlinkSync(absoluteOldLogoPath); // Delete the old logo file
+          console.log('Old logo deleted:', absoluteOldLogoPath);
+        } else {
+          console.log('Old logo file does not exist:', absoluteOldLogoPath);
+        }
+      }
+  
+      // Update the database with the new logo
+      const updateQuery = 'UPDATE employers SET logo = ? WHERE id = ?';
+      const [result] = await connection.query(updateQuery, [logoPath, employerId]);
+  
+      if (result.affectedRows > 0) {
+        return res.status(200).json({
+          success: true,
+          message: 'Logo updated successfully',
+          logoPath,
+        });
+      } else {
+        return res.status(404).json({ message: 'Employer not found' });
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  
+
+  // Get Employer Logo by Employer ID
+ 
+  const getLogo = async (req, res) => {
+    try {
+      const employerId = req.params.employerId; // Get employer ID from the URL parameter
+  
+      console.log('Employer ID:', employerId); // Log for debugging
+  
+      // Connect to the database
+      const connection = await db.getConnection();
+  
+      // Query to get the employer's logo path
+      const query = 'SELECT logo FROM employers WHERE id = ?';
+      const [rows] = await connection.query(query, [employerId]);
+  
+      // If no rows are returned, it means the employer was not found
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Employer not found' });
+      }
+  
+      // Get the logo path from the result
+      const logoPath = rows[0].logo;
+  
+      // If no logo path is found
+      if (!logoPath) {
+        return res.status(404).json({ message: 'Logo not found for the employer' });
+      }
+  
+      // Respond with the relative path to the logo
+      return res.json({ logo: logoPath });  // Just return the path stored in the database
+  
+    } catch (error) {
+      console.error('Error fetching logo:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
+  
+ 
+  
+  
+  
+
+
+
+
+module.exports = { getAllEmployers, getEmployer, createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser,uploadLogo,getLogo};

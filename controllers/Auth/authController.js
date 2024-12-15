@@ -6,23 +6,58 @@ const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const registerUser = async (req, res) => {
-    const { username, email, password, userType, ...otherDetails } = req.body;
+// const registerUser = async (req, res) => {
+//     const { username, email, password, userType, ...otherDetails } = req.body;
 
     
+//     const connection = await db.getConnection();
+//     try {
+//         const hashedPassword = await bcrypt.hash(password, 10);
+//         await connection.beginTransaction();
+//         const user_id = await createUser(connection, username, email,hashedPassword,userType);
+//         //handle save employer details
+//         if (userType === 'employer') {
+//              await createEmployer(connection, user_id, otherDetails); // Save employer specific details
+             
+//         } else if (userType === 'applicant') {
+//             //await createApplicantDetails(connection, user_id, otherDetails); // Save applicant specific details
+//         }
+//         // Handle candidate or employer creation if needed
+//         await connection.commit();
+//         res.status(201).json({ message: 'User registered successfully' });
+//     } catch (error) {
+//         console.error(error);
+//         await connection.rollback();
+//         res.status(500).json({ message: 'Internal server error' });
+//     } finally {
+//         connection.release();
+//     }
+// };
+// controllers/authController.js
+
+
+const registerUser = async (req, res) => {
+    const { username, email, password, userType, ...otherDetails } = req.body;
+    
+    // The logo will be available as `req.file` after multer processes the upload
+    const logo = req.file ? req.file.path : null; // Save file path if logo is uploaded
+
     const connection = await db.getConnection();
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await connection.beginTransaction();
-        const user_id = await createUser(connection, username, email,hashedPassword,userType);
-        //handle save employer details
+
+        // Create user record
+        const user_id = await createUser(connection, username, email, hashedPassword, userType);
+        
+        // If the user is an employer, handle employer-specific details and logo
         if (userType === 'employer') {
-             await createEmployer(connection, user_id, otherDetails); // Save employer specific details
-             
+            // Add the logo (if uploaded) to the employer's data
+            await createEmployer(connection, user_id, { ...otherDetails, logo });
         } else if (userType === 'applicant') {
-            //await createApplicantDetails(connection, user_id, otherDetails); // Save applicant specific details
+            // Handle applicant-specific details (if applicable)
         }
-        // Handle candidate or employer creation if needed
+
         await connection.commit();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -33,6 +68,7 @@ const registerUser = async (req, res) => {
         connection.release();
     }
 };
+
 
 // const loginUser = async (req, res) => {
 //     const { username, password } = req.body;

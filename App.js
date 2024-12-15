@@ -4,7 +4,7 @@ const cors = require('cors'); // Import cors
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const employerRoutes=require('./routes/employer/employerRoutes')
-
+const path = require('path');
 const jobRoutes=require('./routes/job/jobRoute')
 require('dotenv').config();
 
@@ -14,6 +14,9 @@ const app = express();
 app.use(cors({
   origin: 'http://localhost:3000', // Allow requests from this origin
 }));
+
+
+app.use('/uploads/logos', express.static(path.join(__dirname, 'uploads', 'logos')));
 
 // Middleware for parsing JSON
 app.use(bodyParser.json());
