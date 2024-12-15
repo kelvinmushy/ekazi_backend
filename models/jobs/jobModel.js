@@ -177,6 +177,44 @@ const deleteJob = async (id) => {
         throw new Error('Failed to delete job');
     }
 };
+const getJobCount = async () => {
+    try {
+        // Query to count the active jobs
+        const activeQuery = `
+            SELECT COUNT(*) AS count
+            FROM jobs
+            WHERE expired_date > NOW();
+        `;
+
+        // Query to count the expired jobs
+        const expiredQuery = `
+            SELECT COUNT(*) AS count
+            FROM jobs
+            WHERE expired_date < NOW();
+        `;
+
+        // Query to count all jobs
+        const allQuery = `
+            SELECT COUNT(*) AS count
+            FROM jobs;
+        `;
+
+        // Execute queries
+        const [activeResult] = await db.query(activeQuery);
+        const [expiredResult] = await db.query(expiredQuery);
+        const [allResult] = await db.query(allQuery);
+
+        // Return the counts as an object
+        return {
+            active: activeResult[0].count,
+            expired: expiredResult[0].count,
+            all: allResult[0].count,
+        };
+    } catch (error) {
+        console.error('Error fetching job counts:', error.message);
+        throw new Error('Failed to fetch job counts');
+    }
+};
 
 module.exports = { 
     getJobs, 
@@ -186,5 +224,6 @@ module.exports = {
     linkJobCultures, 
     linkJobSkills, 
     updateJob, 
-    deleteJob
+    deleteJob,
+    getJobCount
 };

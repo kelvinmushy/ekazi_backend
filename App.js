@@ -5,6 +5,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const employerRoutes=require('./routes/employer/employerRoutes')
 
+const jobRoutes=require('./routes/job/jobRoute')
 require('dotenv').config();
 
 const app = express();
@@ -23,8 +24,11 @@ app.use('/api/admin', adminRoutes);
 //employer Routes
 app.use('/api/employers/', employerRoutes);
 
+//job route will be here
+
 app.use('/api', userRoutes);
 
+app.use('/api/jobs', jobRoutes);
 
 const PORT = process.env.PORT || 4000;
 
