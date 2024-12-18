@@ -1,6 +1,8 @@
 // controllers/authController.js
 const { createUser, UserEmployer,findUserByUsername, getUserById, updateUserPassword,getUserEmployer } = require('../../models/users/user');
-const{getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser }=require('../../models/employer/employer');
+const{createEmployer}=require('../../models/employer/employer');
+const{createApplicant}=require('../../models/applicants/applicant');
+
 
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
@@ -55,7 +57,9 @@ const registerUser = async (req, res) => {
             // Add the logo (if uploaded) to the employer's data
             await createEmployer(connection, user_id, { ...otherDetails, logo });
         } else if (userType === 'applicant') {
+
             // Handle applicant-specific details (if applicable)
+            await createApplicant(connection, user_id, { ...otherDetails, logo })
         }
 
         await connection.commit();

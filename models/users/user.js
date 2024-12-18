@@ -105,7 +105,7 @@ const deleteUser = async (id) => {
 
 // Find user by username
 const findUserByUsername = async (connection, username) => {
-  const query = 'SELECT * FROM users WHERE username = ?';
+  const query = 'SELECT * FROM users WHERE email = ?';
   try {
     const [rows] = await connection.query(query, [username]);
     return rows.length > 0 ? rows[0] : null; // Return the user if found, else null
