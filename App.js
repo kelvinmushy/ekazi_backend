@@ -4,6 +4,7 @@ const cors = require('cors'); // Import cors
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const employerRoutes=require('./routes/employer/employerRoutes')
+const applicantRoutes=require('./routes/applicant/applicantRoute')
 const path = require('path');
 const jobRoutes=require('./routes/job/jobRoute')
 require('dotenv').config();
@@ -32,6 +33,8 @@ app.use('/api/employers/', employerRoutes);
 app.use('/api', userRoutes);
 
 app.use('/api/jobs', jobRoutes);
+
+app.use('/api/applicant/', applicantRoutes);
 
 const PORT = process.env.PORT || 4000;
 
