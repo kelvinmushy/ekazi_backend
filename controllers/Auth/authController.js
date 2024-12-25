@@ -1,5 +1,5 @@
 // controllers/authController.js
-const { createUser, UserEmployer,findUserByUsername, getUserById, updateUserPassword,getUserEmployer } = require('../../models/users/user');
+const { createUser, UserEmployer,findUserByUsername, getUserById, updateUserPassword,getUserEmployer,getUserApplicant } = require('../../models/users/user');
 const{createEmployer}=require('../../models/employer/employer');
 const{createApplicant}=require('../../models/applicants/applicant');
 
@@ -145,30 +145,35 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
-        // Step 1: Check if the user is an employer
-        
+        // Initialize variables
         let employerId = null;
-        if (user.userType === 'employer') {
-            console.log('kelvin cosmas is',user.userType );
-            // Step 2: Fetch the employer_id from the user_employer table
-            const userEmployer = await getUserEmployer(user.id);
+        let applicantId = null;
 
-              console.log(userEmployer);
+        // Step 1: Check if the user is an employer or applicant
+        if (user.userType === 'employer') {
+            // Fetch the employer_id from the user_employer table
+            const userEmployer = await getUserEmployer(user.id);
             if (!userEmployer) {
                 return res.status(404).json({ message: 'Employer record not found' });
             }
-
             employerId = userEmployer.employer_id; // Get the employer_id
+        } else if (user.userType === 'applicant') {
+            // If the user is an applicant, fetch the applicant_id
+            const userApplicant = await getUserApplicant(user.id); // Assuming getUserApplicant fetches the applicant data
+            if (!userApplicant) {
+                return res.status(404).json({ message: 'Applicant record not found' });
+            }
+            applicantId = userApplicant.id; // Get the applicant_id
         }
 
-        // Step 3: Generate JWT token
+        // Step 2: Generate JWT token
         const token = jwt.sign(
-            { id: user.id, userType: user.userType, employerId },
+            { id: user.id, userType: user.userType, employerId, applicantId },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        // Step 4: Return response with token and employer_id if applicable
+        // Step 3: Return response with token and relevant user data
         res.status(200).json({
             message: 'Login successful',
             token,
@@ -176,7 +181,8 @@ const loginUser = async (req, res) => {
                 id: user.id,
                 username: user.username,
                 userType: user.userType,
-                employerId: employerId, // Include employerId in the response
+                employerId: employerId, // Include employerId if the user is an employer
+                applicantId: applicantId, // Include applicantId if the user is an applicant
             }
         });
     } catch (error) {
@@ -188,6 +194,7 @@ const loginUser = async (req, res) => {
         }
     }
 };
+
 
 
 

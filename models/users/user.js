@@ -150,7 +150,7 @@ const deleteUserEmployer = async (id) => {
 
 // Fetch employer by user ID
 const getUserEmployer = async (userId) => {
-  console.log("user IId",userId);
+ 
   const connection = await db.getConnection();
   try {
     const [result] = await connection.query(
@@ -164,7 +164,22 @@ const getUserEmployer = async (userId) => {
     throw new Error('Could not fetch employer data');
   }
 };
+const getUserApplicant=async(id)=>{
+  console.log(id);
+  const connection = await db.getConnection();
+  try {
+    const [result] = await connection.query(
+      'SELECT id FROM applicants WHERE user_id = ?',
+      [id]
+    );
+    connection.release();
+    return result[0] || null;
+  } catch (error) {
+    console.error('Error fetching employer record:', error.message);
+    throw new Error('Could not fetch employer data');
+  }
 
+}
 module.exports = {
   
   createUser,
@@ -177,4 +192,5 @@ module.exports = {
   getUserEmployer,
   deleteUserEmployer,
   getUsers,
+  getUserApplicant
 };

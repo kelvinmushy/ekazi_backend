@@ -9,6 +9,13 @@ const {
   
   } = require('../../controllers/applicants/applicantRefereesController');
 
+  const {
+    createApplicantSkill,
+    getSkillsByApplicantId,
+    updateSkill,
+    deleteSkill,
+} = require('../../controllers/applicants/applicantSkillsController');
+
 const router = express.Router();
 
 // Get employer by ID
@@ -24,6 +31,19 @@ router.put('/referees/:refereeId', editRefereeById);
 // Delete a referee by refereeId
 router.delete('/referees/:refereeId', deleteRefereeById);
 
+
+
+// Get all skills for an applicant by applicantId
+router.get('/skills/:applicantId', getSkillsByApplicantId);
+
+// Add a new skill for the applicant
+router.post('/skills', createApplicantSkill);
+
+// Update a skill for an applicant by skillId
+router.put('/skills/:skillId', updateSkill);
+
+// Delete a skill for an applicant by skillId
+router.delete('/skills/:skillId', deleteSkill);
 
 
 module.exports = router;
