@@ -1,49 +1,43 @@
-// routes/employerRoutes.js
-const upload = require('../../middleware/multerMiddleware');
 const express = require('express');
 const {
     getRefereesBYapplicantId,
-  createRefereesBYapplicantId,
-  editRefereeById,
-  deleteRefereeById,
-  
-  } = require('../../controllers/applicants/applicantRefereesController');
+    createRefereesBYapplicantId,
+    editRefereeById,
+    deleteRefereeById,
+} = require('../../controllers/applicants/applicantRefereesController');
 
-  const {
+const {
     createApplicantSkill,
     getSkillsByApplicantId,
     updateSkill,
     deleteSkill,
 } = require('../../controllers/applicants/applicantSkillsController');
 
+const {
+    getExperiencesByApplicantId,
+    createExperienceByApplicantId,
+    editExperienceById,
+    deleteExperienceById,
+} = require('../../controllers/applicants/applicantExperiencesController');
+
 const router = express.Router();
 
-// Get employer by ID
+// Referees Routes
 router.get('/referees/:applicantId', getRefereesBYapplicantId);
-
-
-// Add a new referee for the applicant
 router.post('/referees/:applicantId', createRefereesBYapplicantId);
-
-// Update referee details by refereeId
 router.put('/referees/:refereeId', editRefereeById);
-
-// Delete a referee by refereeId
 router.delete('/referees/:refereeId', deleteRefereeById);
 
-
-
-// Get all skills for an applicant by applicantId
+// Skills Routes
 router.get('/skills/:applicantId', getSkillsByApplicantId);
-
-// Add a new skill for the applicant
 router.post('/skills', createApplicantSkill);
-
-// Update a skill for an applicant by skillId
 router.put('/skills/:skillId', updateSkill);
-
-// Delete a skill for an applicant by skillId
 router.delete('/skills/:skillId', deleteSkill);
 
+// Experiences Routes
+router.get('/experiences/:applicantId', getExperiencesByApplicantId);
+router.post('/experiences/:applicantId', createExperienceByApplicantId);
+router.put('/experiences/:experienceId', editExperienceById);
+router.delete('/experiences/:experienceId', deleteExperienceById);
 
 module.exports = router;
