@@ -19,6 +19,8 @@ app.use(cors({
 
 app.use('/uploads/logos', express.static(path.join(__dirname, 'uploads', 'logos')));
 
+// app.use('/uploads/courses', express.static(path.join(__dirname, 'uploads', 'courses')));
+
 // Middleware for parsing JSON
 app.use(bodyParser.json());
 
