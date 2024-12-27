@@ -47,6 +47,7 @@ const createProfessionalQualification = async (qualification) => {
 
     const { applicant_id, country_id, institution_id, course_id, attachment, started, ended, creator_id } = qualification;
 
+    
     // If any value is undefined, replace it with null for MySQL compatibility
     const attachmentValue = attachment !== undefined ? attachment : null;
     const yearFromValue = started !== undefined ? started : null;
