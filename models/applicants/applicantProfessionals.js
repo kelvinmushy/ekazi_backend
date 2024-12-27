@@ -128,10 +128,23 @@ const removeProfessionalQualification = async (qualificationId) => {
     throw error;
   }
 };
+// Function to get a professional qualification by ID
+const getProfessionalQualificationById = async (qualificationId) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM applicant_professionals WHERE id = ?', [qualificationId]);
+    
+    // Return the first row if it exists, otherwise return null
+    return rows.length > 0 ? rows[0] : null;
+  } catch (error) {
+    console.error('Error fetching professional qualification:', error);
+    throw error; // Propagate the error to be handled at the controller level
+  }
+};
 
 module.exports = {
   getProfessionalQualificationsByApplicantId,
   createProfessionalQualification,
   updateProfessionalQualification,
   removeProfessionalQualification,
+  getProfessionalQualificationById
 };

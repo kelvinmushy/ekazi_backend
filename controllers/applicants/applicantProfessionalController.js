@@ -3,11 +3,14 @@ const {
   getProfessionalQualificationsByApplicantId,
   updateProfessionalQualification,
   removeProfessionalQualification,
+  getProfessionalQualificationById
 } = require('../../models/applicants/applicantProfessionals'); // Importing the necessary functions from model
 
 const { createInstitution } = require('../../models/resources/institutionModel');
 const { createCourse } = require('../../models/resources/courseModel');
 
+const fs = require('fs');
+const path = require('path');
 // Get professional qualifications by Applicant ID
 const getProfessionalQualificationsByApplicantIdController = async (req, res) => {
   try {
@@ -147,8 +150,14 @@ const updateProfessionalQualificationController = async (req, res) => {
     const { qualificationId } = req.params; // Extract qualificationId from route params
     const { institution_id, course_id, started, ended, updator_id, country_id } = req.body; // Extract from request body
 
+    // Get the existing qualification details
+    const existingQualification = await getProfessionalQualificationById(qualificationId);
+    if (!existingQualification) {
+      return res.status(404).json({ message: 'Professional qualification not found' });
+    }
+
     // Handle file upload
-    const attachment = req.file ? req.file.path : null;  // multer stores the file in `req.file`
+    const attachment = req.file ? req.file.path : null; // multer stores the file in req.file
 
     let finalInstitutionId, finalCourseId;
 
@@ -156,8 +165,7 @@ const updateProfessionalQualificationController = async (req, res) => {
     if (isNaN(institution_id)) {
       console.log(`Creating institution: ${institution_id}`);
       const newInstitution = { name: institution_id, creator_id: updator_id }; // Update to use creator_id
-      const createdInstitution = await createInstitution(newInstitution);
-      finalInstitutionId = createdInstitution; // Assign new institution ID
+      finalInstitutionId = await createInstitution(newInstitution); // Assign new institution ID
     } else {
       finalInstitutionId = institution_id; // Use existing institution ID
     }
@@ -166,10 +174,27 @@ const updateProfessionalQualificationController = async (req, res) => {
     if (isNaN(course_id)) {
       console.log(`Creating course: ${course_id}`);
       const newCourse = { name: course_id, creator_id: updator_id }; // Update to use creator_id
-      const createdCourse = await createCourse(newCourse);
-      finalCourseId = createdCourse; // Assign new course ID
+      finalCourseId = await createCourse(newCourse); // Assign new course ID
     } else {
       finalCourseId = course_id; // Use existing course ID
+    }
+
+    // If a new attachment is uploaded, delete the old one
+    if (attachment) {
+      const oldAttachmentPath = existingQualification.attachment;
+      if (oldAttachmentPath) {
+        // Remove the old file
+        fs.unlink(path.resolve(oldAttachmentPath), (err) => {
+          if (err) {
+            console.error('Error deleting old file:', err);
+          } else {
+            console.log('Old file deleted successfully');
+          }
+        });
+      }
+    } else {
+      // If no new attachment is uploaded, keep the old one
+      attachment = existingQualification.attachment;
     }
 
     // Construct the updated qualification object
@@ -200,24 +225,48 @@ const updateProfessionalQualificationController = async (req, res) => {
 };
 
 
-// Delete a professional qualification by ID
+
 const removeProfessionalQualificationController = async (req, res) => {
   try {
     const { qualificationId } = req.params; // Extract qualificationId from route params
 
-    // Delete the qualification
+    // Get the existing qualification to retrieve the attachment path
+    const existingQualification = await getProfessionalQualificationById(qualificationId);
+    
+    // Check if the qualification exists
+    if (!existingQualification) {
+      return res.status(404).json({ message: 'Professional qualification not found' });
+    }
+
+    const oldAttachmentPath = existingQualification.attachment;
+
+    // Call the function to remove the qualification from the database
     const result = await removeProfessionalQualification(qualificationId);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Professional qualification not found' });
     }
 
+    // If there is an old attachment, remove the old file
+    if (oldAttachmentPath) {
+      fs.unlink(path.resolve(oldAttachmentPath), (err) => {
+        if (err) {
+          console.error('Error deleting old file:', err);
+        } else {
+          console.log('Old file deleted successfully');
+        }
+      });
+    }
+
     return res.status(200).json({ message: 'Professional qualification deleted successfully' });
   } catch (error) {
-    console.error('Error deleting qualification:', error);
-    return res.status(500).json({ message: 'Could not delete professional qualification' });
+    console.error('Error deleting qualification:', error.message || error);
+    return res.status(500).json({ message: 'Could not delete professional qualification', error: error.message || error });
   }
 };
+
+
+
 
 // Export controller functions
 module.exports = {
