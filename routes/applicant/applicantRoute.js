@@ -36,7 +36,22 @@ const {
     removeProfessionalQualificationController,
 } = require('../../controllers/applicants/applicantProfessionalController'); // Professional Qualifications controller
 
+const {
+  createEducationalQualificationController,
+  getEducationalQualificationsByApplicantIdController,
+  updateEducationalQualificationController,
+  removeEducationalQualificationController,
+} = require('../../controllers/applicants/applicantEducationController'); // Educational Qualifications controller
+
+const {
+ createApplicantController,
+ getApplicantByIdController
+
+} = require('../../controllers/applicants/applicantController'); // Educational Qualifications controller
+
+
 const courses = require('../../middleware/multerCourseMiddleware'); // Multer middleware for handling file uploads (e.g., course attachments)
+const education = require('../../middleware/multerEducationMiddleware'); 
 const router = express.Router();
 
 // Multer error handling middleware
@@ -88,5 +103,14 @@ router.get('/professional-qualifications/:applicantId', getProfessionalQualifica
 router.post('/professional-qualifications/:applicantId', courses, handleMulterError, createProfessionalQualificationController);  // Create new professional qualification with file upload
 router.put('/professional-qualifications/:qualificationId', courses, handleMulterError, updateProfessionalQualificationController);  // Edit a professional qualification with file upload
 router.delete('/professional-qualifications/:qualificationId', removeProfessionalQualificationController);  // Delete a professional qualification by ID
+
+// Educational Qualifications Routes
+router.get('/educational-qualifications/:applicantId', getEducationalQualificationsByApplicantIdController);  // Get all educational qualifications by applicant ID
+router.post('/educational-qualifications/:applicantId', education,createEducationalQualificationController);  // Create new educational qualification with file upload
+router.put('/educational-qualifications/:qualificationId',education, updateEducationalQualificationController);  // Edit an educational qualification with file upload
+router.delete('/educational-qualifications/:qualificationId', removeEducationalQualificationController);  // Delete an educational qualification by ID
+
+//applicant route 
+router.get('/:applicantId', getApplicantByIdController);
 
 module.exports = router;
