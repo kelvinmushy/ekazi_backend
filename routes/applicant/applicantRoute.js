@@ -45,7 +45,8 @@ const {
 
 const {
  createApplicantController,
- getApplicantByIdController
+ getApplicantByIdController,
+ updateApplicantController
 
 } = require('../../controllers/applicants/applicantController'); // Educational Qualifications controller
 
@@ -112,5 +113,8 @@ router.delete('/educational-qualifications/:qualificationId', removeEducationalQ
 
 //applicant route 
 router.get('/:applicantId', getApplicantByIdController);
+router.put('/:qualificationId', updateApplicantController);  // Edit an educational qualification with file upload
+
+
 
 module.exports = router;

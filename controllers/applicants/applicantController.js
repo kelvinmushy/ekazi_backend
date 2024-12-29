@@ -1,4 +1,4 @@
-const { createApplicant, getApplicantById } = require('../../models/applicants/applicant'); // Importing model functions
+const { createApplicant, getApplicantById,updateApplicant } = require('../../models/applicants/applicant'); // Importing model functions
 
 // Controller to create a new applicant and their details
 const createApplicantController = async (req, res) => {
@@ -63,8 +63,33 @@ const getApplicantsController = async (req, res) => {
   }
 };
 
+
+// Controller to update an applicant and their details
+const updateApplicantController = async (req, res) => {
+   
+  try {
+    const applicantId = req.body.applicantId; // Extract the applicant ID from the URL parameters
+   
+    const updatedDetails = req.body; // Get updated details from the request body
+
+    if (!applicantId || !updatedDetails) {
+      return res.status(400).json({ message: 'Applicant ID and updated details are required' });
+    }
+
+    console.log(updatedDetails);
+    const result = await updateApplicant(applicantId, updatedDetails);
+
+    return res.status(200).json(result);
+    
+  } catch (error) {
+    console.error('Error updating applicant:', error);
+    return res.status(500).json({ message: 'Error updating applicant', error: error.message });
+  }
+};
+
 module.exports = {
   createApplicantController,
   getApplicantByIdController,
-  getApplicantsController
+  getApplicantsController,
+  updateApplicantController
 };

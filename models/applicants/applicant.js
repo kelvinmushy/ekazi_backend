@@ -8,19 +8,19 @@ const getApplicantById = async (applicant_id) => {
     const [applicant] = await db.query(
       `
         SELECT 
-  a.id,
-  a.first_name,
-  a.last_name,
-  a.logo,
+   a.id,
+   a.first_name,
+   a.last_name,
+   a.logo,
    a.dob,
-  aa.address,
-ap.phone_number,
-  aa.region_id,
-  r.name AS region_name,           -- Assuming regions table has a 'name' field for the region
+   a.gender_id,
+   a.marital_id,
+   aa.address,
+   ap.phone_number,
+   aa.region_id,
+   r.name AS region_name,           -- Assuming regions table has a 'name' field for the region
    r.country_id AS country_id,           -- Assuming regions table has a 'name' field for the region
-  m.name AS marital_status,        -- Assuming marital_statuses table has a 'name' field for marital status
-  g.name AS gender,                -- Assuming gender table has a 'name' field for gender
-  c.name AS country_name           -- Assuming countries table has a 'name' field for the country
+   c.name AS country_name           -- Assuming countries table has a 'name' field for the country
 FROM 
   applicants a
 LEFT JOIN applicant_addresses aa ON a.id = aa.applicant_id
@@ -96,4 +96,89 @@ const createApplicant = async (user_id, otherDetails) => {
   }
 };
 
-module.exports = { createApplicant, getApplicantById };
+const updateApplicant = async (applicant_id, updatedDetails) => {
+  try {
+    // Update the main applicant details
+    await db.query(
+      `
+      UPDATE applicants 
+      SET 
+        first_name = ?, 
+        last_name = ?, 
+        logo = ?, 
+        dob = ?,
+        marital_id = ?,
+        gender_id = ?
+      WHERE id = ?
+      `,
+      [
+        updatedDetails.firstName,         // Updated first name
+        updatedDetails.lastName,          // Updated last name
+        updatedDetails.logo,              // Updated logo
+        updatedDetails.dateOfBirth,               // Updated date of birth
+        updatedDetails.maritalStatus,         // Updated marital status ID
+        updatedDetails.gender,          // Updated gender ID
+        applicant_id                      // Applicant ID to identify the record
+      ]
+    );
+
+    // Update addresses (assuming updatedDetails.addresses is an array of objects with id and new data)
+    if (updatedDetails.addresses && Array.isArray(updatedDetails.addresses)) {
+      for (const address of updatedDetails.addresses) {
+        if (address.id) {
+          // Update existing address
+          await db.query(
+            `
+            UPDATE applicant_addresses 
+            SET address = ?, region_id = ? 
+            WHERE id = ?
+            `,
+            [address.address, address.regionId, address.id]
+          );
+        } else {
+          // Insert new address
+          await db.query(
+            `
+            INSERT INTO applicant_addresses (applicant_id, address, region_id) 
+            VALUES (?, ?, ?)
+            `,
+            [applicant_id, address.address, address.regionId]
+          );
+        }
+      }
+    }
+
+    // Update phone numbers (assuming updatedDetails.phones is an array of objects with id and new data)
+    if (updatedDetails.phones && Array.isArray(updatedDetails.phones)) {
+      for (const phone of updatedDetails.phones) {
+        if (phone.id) {
+          // Update existing phone number
+          await db.query(
+            `
+            UPDATE applicant_phones 
+            SET phone_number = ? 
+            WHERE id = ?
+            `,
+            [phone.phoneNumber, phone.id]
+          );
+        } else {
+          // Insert new phone number
+          await db.query(
+            `
+            INSERT INTO applicant_phones (applicant_id, phone_number) 
+            VALUES (?, ?)
+            `,
+            [applicant_id, phone.phoneNumber]
+          );
+        }
+      }
+    }
+
+    return { success: true, message: 'Applicant updated successfully' };
+  } catch (error) {
+    console.error('Error updating applicant:', error);
+    throw new Error('Could not update applicant');
+  }
+};
+
+module.exports = { createApplicant, getApplicantById ,updateApplicant };
