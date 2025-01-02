@@ -71,6 +71,15 @@ const {
   getUser
 } = require('../controllers/users/userController');
 
+const {
+  fetchCvTemplates,
+  addCvTemplate,
+  modifyCvTemplate,
+  removeCvTemplate
+} = require('../controllers/admins/cvTemplateController');
+
+
+const template = require('../middleware/multerCvTemplateMiddleware'); 
 //Cultures Routes API
 router.get('/resource/culture', getAllCultures);
 router.post('/resource/culture', createNewCulture);
@@ -138,6 +147,16 @@ router.delete('/user/:id', deleteOldUser);
 // Route to get a user by ID
 router.get('/user/:id', getUser);
 
+// Route to fetch all CV templates
+router.get('/cv', fetchCvTemplates);
 
+// Route to create a new CV template
+router.post('/cv/add',template,addCvTemplate);
+
+// Route to update an existing CV template
+router.put('/cv/update/:id',template,modifyCvTemplate);
+
+// Route to delete a CV template
+router.delete('/cv/delete/:id', removeCvTemplate);
 
 module.exports = router;

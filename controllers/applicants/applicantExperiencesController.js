@@ -147,7 +147,7 @@ const createExperienceByApplicantId = async (req, res) => {
 //     }
 //   };
 const editExperienceById = async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     try {
       const { experienceId } = req.params; // Extract experienceId from the route parameters
       const { institution_id, position_id, responsibilities, from, to, isCurrentlyWorking,applicantId } = req.body; // Extract updated data from request body

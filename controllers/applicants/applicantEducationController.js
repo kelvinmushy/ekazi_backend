@@ -33,7 +33,7 @@ const {
     try {
       // Extract applicantId from request parameters
       const { applicantId } = req.params;
-      console.log(req.body);
+      //console.log(req.body);
       // Extract qualification details from request body
       const {
         country_id,
@@ -51,7 +51,6 @@ const {
   
       // Handle institution
       if (isNaN(institution_id)) {
-        console.log(`Creating institution: ${institution_id}`);
         const newInstitution = { name: institution_id, creator_id: applicantId }; // Update to use creator_id
         const createdInstitution = await createInstitution(newInstitution);
        
@@ -62,7 +61,6 @@ const {
   
       // Handle programme
       if (isNaN(programme_id)) {
-        console.log(`Creating programme: ${programme_id}`);
         const newProgramme = { name: programme_id, creator_id: applicantId }; // Update to use creator_id
         const createdProgramme = await createdProgrammes(newProgramme); // Change this to your actual model for creating programmes
         finalProgrammeId = createdProgramme; // Assign new programme ID
@@ -88,7 +86,7 @@ const {
         updator_id: updator_id || null,
       };
   
-      console.log("Saving qualification:", newQualification);
+      //console.log("Saving qualification:", newQualification);
   
       // Save qualification to the database
       const result = await createEducationalQualification(newQualification);
@@ -123,7 +121,7 @@ const {
   
       // Handle institution
       if (isNaN(institution_id)) {
-        console.log(`Creating institution: ${institution_id}`);
+        //console.log(`Creating institution: ${institution_id}`);
         const newInstitution = { name: institution_id, creator_id: updator_id }; // Update to use creator_id
         finalInstitutionId = await createInstitution(newInstitution); // Assign new institution ID
       } else {
@@ -132,7 +130,7 @@ const {
   
       // Handle programme
       if (isNaN(programme_id)) {
-        console.log(`Creating programme: ${programme_id}`);
+        //console.log(`Creating programme: ${programme_id}`);
         const newProgramme = { name: programme_id, creator_id: updator_id }; // Update to use creator_id
         finalProgrammeId = await createdProgrammes(newProgramme); // Assign new programme ID
       } else {
@@ -170,7 +168,7 @@ const {
         updator_id, // Always update the updator_id
       };
   
-      console.log("Updating qualification:", updatedQualification);
+     // console.log("Updating qualification:", updatedQualification);
       
       // Update the qualification in the database
       const result = await updateEducationalQualification(qualificationId, updatedQualification);

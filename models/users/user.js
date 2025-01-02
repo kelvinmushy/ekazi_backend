@@ -165,7 +165,7 @@ const getUserEmployer = async (userId) => {
   }
 };
 const getUserApplicant=async(id)=>{
-  console.log(id);
+ // console.log(id);
   const connection = await db.getConnection();
   try {
     const [result] = await connection.query(

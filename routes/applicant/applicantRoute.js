@@ -46,11 +46,21 @@ const {
 const {
  createApplicantController,
  getApplicantByIdController,
- updateApplicantController
+ updateApplicantController,
+ uploadLogo,getLogo,applicanSelectCv
 
 } = require('../../controllers/applicants/applicantController'); // Educational Qualifications controller
 
+const {
+   createApplicantSocialMedia,
+    getSocialMediaByApplicantId,
+    updateSocialMediaLink,
+    deleteSocialMediaLink,
+ 
+ } = require('../../controllers/applicants/applicantSocialMediaController'); // Educational Qualifications controller
 
+ 
+const upload = require('../../middleware/multerMiddleware');
 const courses = require('../../middleware/multerCourseMiddleware'); // Multer middleware for handling file uploads (e.g., course attachments)
 const education = require('../../middleware/multerEducationMiddleware'); 
 const router = express.Router();
@@ -114,7 +124,16 @@ router.delete('/educational-qualifications/:qualificationId', removeEducationalQ
 //applicant route 
 router.get('/:applicantId', getApplicantByIdController);
 router.put('/:qualificationId', updateApplicantController);  // Edit an educational qualification with file upload
+//applicant logo
+router.post('/upload-logo/:applicantId', upload, uploadLogo);
+router.get('/logo/:applicantId', getLogo);
 
-
+//applicant cv will be here 
+router.post('/cv/save/:applicantId', applicanSelectCv);
+//social media routes
+router.get('/social-media/:applicantId', getSocialMediaByApplicantId);  // Get all social media links by applicant ID
+router.post('/social-media', createApplicantSocialMedia);  // Create new social media links
+router.put('/social-media', updateSocialMediaLink);  // Edit a social media link by ID
+router.delete('/social-media/:socialMediaId', deleteSocialMediaLink); 
 
 module.exports = router;

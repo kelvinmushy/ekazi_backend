@@ -94,7 +94,7 @@ const editRefereeById = async (req, res) => {
 // 4. Delete Referee by Referee ID
 const deleteRefereeById = async (req, res) => {
   try {
-    console.log(req.body);
+    //console.log(req.body);
     const { refereeId } = req.params; // Extract refereeId from the route parameters
 
     // Call the model function to delete the referee from the database

@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Import cors
+const cors = require('cors');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
-const employerRoutes=require('./routes/employer/employerRoutes')
-const applicantRoutes=require('./routes/applicant/applicantRoute')
+const employerRoutes = require('./routes/employer/employerRoutes');
+const applicantRoutes = require('./routes/applicant/applicantRoute');
+const jobRoutes = require('./routes/job/jobRoute');
+const universalRoutes = require('./routes/universals/universalRoute');
+const pdfRoutes = require('./routes/pdfRoutes'); // Import the new PDF route
 const path = require('path');
-const jobRoutes=require('./routes/job/jobRoute')
 require('dotenv').config();
 
 const app = express();
@@ -16,27 +18,26 @@ app.use(cors({
   origin: 'http://localhost:3000', // Allow requests from this origin
 }));
 
-
+// Serve static files
 app.use('/uploads/logos', express.static(path.join(__dirname, 'uploads', 'logos')));
-
-// app.use('/uploads/courses', express.static(path.join(__dirname, 'uploads', 'courses')));
+app.use('/uploads/cvtemplates', express.static(path.join(__dirname, 'uploads', 'cvtemplates')));
 
 // Middleware for parsing JSON
 app.use(bodyParser.json());
 
 // Define routes
 app.use('/api/admin', adminRoutes);
-
-//employer Routes
 app.use('/api/employers/', employerRoutes);
-
-//job route will be here
-
 app.use('/api', userRoutes);
-
 app.use('/api/jobs', jobRoutes);
-
 app.use('/api/applicant/', applicantRoutes);
+app.use('/api/universals/', universalRoutes);
+app.use('/api/pdf', pdfRoutes); // Use the new PDF route
+
+// Basic route to check server health
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
 
 const PORT = process.env.PORT || 4000;
 

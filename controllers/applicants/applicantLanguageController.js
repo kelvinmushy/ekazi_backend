@@ -26,7 +26,7 @@ const {
   
   // 2. Create a New Language Entry for the Applicant
   const createLanguageByApplicantId = async (req, res) => {
-    console.log(req.body);
+   // console.log(req.body);
     try {
       const { applicantId } = req.params; // Extract applicantId from the route parameters
       const { read_id, write_id, speak_id, language_id } = req.body; // Extract language details from request body

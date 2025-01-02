@@ -39,7 +39,7 @@ const { createSkill } = require('../../models/resources/skillModel');
 
 const createApplicantSkill = async (req, res) => {
     try {
-        console.log("Full request body:", req.body);
+        //console.log("Full request body:", req.body);
 
         // Validate that req.body is an array
         if (!Array.isArray(req.body)) {
@@ -51,14 +51,14 @@ const createApplicantSkill = async (req, res) => {
             req.body.map(async (data) => {
                 const { applicant_id, skill_id, creator_id } = data;
 
-                console.log("Processing skill:", skill_id);
+               // console.log("Processing skill:", skill_id);
 
                 let actualSkillId;
 
                 // Check if skill_id is numeric (indicating an existing skill) or a name
                 if (isNaN(skill_id)) {
                     // Skill ID is a name, treat it as a new skill
-                    console.log("Creating new skill...");
+                   // console.log("Creating new skill...");
                     const newSkill = { skill_name: skill_id, creator_id };
                     actualSkillId = await createSkill(newSkill); // Pass skill_name and creator_id
                     if (!actualSkillId) {
@@ -99,7 +99,7 @@ const getSkillsByApplicantId = async (req, res) => {
     try {
         const skills = await ApplicantSkills.getSkillsByApplicantId(applicantId);
         if (skills.length > 0) {
-            return res.status(200).json({ skills });
+            return res.status(200).json(skills);
         } else {
             return res.status(404).json({ message: 'No skills found for this applicant' });
         }
@@ -113,7 +113,7 @@ const getSkillsByApplicantId = async (req, res) => {
 const updateSkill = async (req, res) => {
     const { skill_id, id } = req.body; // Destructure skill_id and id directly from req.body
 
-    console.log(skill_id);
+   // console.log(skill_id);
     // Validate that skill_id and id are provided
     if (!skill_id || !id) {
         return res.status(400).json({ message: 'skill_id and id are required' });

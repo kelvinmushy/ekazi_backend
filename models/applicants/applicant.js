@@ -8,11 +8,14 @@ const getApplicantById = async (applicant_id) => {
     const [applicant] = await db.query(
       `
         SELECT 
+   u.email,
    a.id,
    a.first_name,
    a.last_name,
+   a.about,
    a.logo,
    a.dob,
+   a.user_id ,
    a.gender_id,
    a.marital_id,
    aa.address,
@@ -24,7 +27,7 @@ const getApplicantById = async (applicant_id) => {
 FROM 
   applicants a
 LEFT JOIN applicant_addresses aa ON a.id = aa.applicant_id
-
+LEFT JOIN users u ON a.user_id = u.id 
 LEFT JOIN regions r ON aa.region_id = r.id     -- Join regions by region_id
 LEFT JOIN countries c ON r.country_id = c.id  -- Join countries by country_id
 LEFT JOIN marital_statuses m ON a.marital_id = m.id  -- Join marital statuses by marital_id
@@ -108,7 +111,8 @@ const updateApplicant = async (applicant_id, updatedDetails) => {
         logo = ?, 
         dob = ?,
         marital_id = ?,
-        gender_id = ?
+        gender_id = ?,
+        about=?
       WHERE id = ?
       `,
       [
@@ -118,7 +122,9 @@ const updateApplicant = async (applicant_id, updatedDetails) => {
         updatedDetails.dateOfBirth,               // Updated date of birth
         updatedDetails.maritalStatus,         // Updated marital status ID
         updatedDetails.gender,          // Updated gender ID
+        updatedDetails.about,  
         applicant_id                      // Applicant ID to identify the record
+
       ]
     );
 

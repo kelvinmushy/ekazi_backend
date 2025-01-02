@@ -87,7 +87,6 @@ const createProfessionalQualificationController = async (req, res) => {
 
     // Handle institution
     if (isNaN(institution_id)) {
-      console.log(`Creating institution: ${institution_id}`);
       const newInstitution = { name: institution_id, creator_id: applicantId }; // Update to use creator_id
       const createdInstitution = await createInstitution(newInstitution);
      
@@ -98,7 +97,7 @@ const createProfessionalQualificationController = async (req, res) => {
 
     // Handle course
     if (isNaN(course_id)) {
-      console.log(`Creating course: ${course_id}`);
+    
       const newCourse = { name: course_id, creator_id: applicantId }; // Update to use creator_id
       const createdCourse = await createCourse(newCourse);
       finalCourseId = createdCourse; // Assign new course ID
@@ -122,7 +121,7 @@ const createProfessionalQualificationController = async (req, res) => {
       updator_id: updator_id || null,
     };
 
-    console.log("Saving qualification:", newQualification);
+    
 
     // Save qualification to the database
     const result = await createProfessionalQualification(newQualification);
@@ -163,7 +162,6 @@ const updateProfessionalQualificationController = async (req, res) => {
 
     // Handle institution
     if (isNaN(institution_id)) {
-      console.log(`Creating institution: ${institution_id}`);
       const newInstitution = { name: institution_id, creator_id: updator_id }; // Update to use creator_id
       finalInstitutionId = await createInstitution(newInstitution); // Assign new institution ID
     } else {
@@ -172,7 +170,6 @@ const updateProfessionalQualificationController = async (req, res) => {
 
     // Handle course
     if (isNaN(course_id)) {
-      console.log(`Creating course: ${course_id}`);
       const newCourse = { name: course_id, creator_id: updator_id }; // Update to use creator_id
       finalCourseId = await createCourse(newCourse); // Assign new course ID
     } else {
@@ -208,7 +205,7 @@ const updateProfessionalQualificationController = async (req, res) => {
       updator_id, // Always update the updator_id
     };
 
-    console.log("Updating qualification:", updatedQualification);
+   
     
     // Update the qualification in the database
     const result = await updateProfessionalQualification(qualificationId, updatedQualification);
