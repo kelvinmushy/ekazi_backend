@@ -153,10 +153,13 @@ const loginUser = async (req, res) => {
         if (user.userType === 'employer') {
             // Fetch the employer_id from the user_employer table
             const userEmployer = await getUserEmployer(user.id);
+           
             if (!userEmployer) {
                 return res.status(404).json({ message: 'Employer record not found' });
             }
             employerId = userEmployer.employer_id; // Get the employer_id
+            employerName = userEmployer.company_name; 
+            
         } else if (user.userType === 'applicant') {
             // If the user is an applicant, fetch the applicant_id
             const userApplicant = await getUserApplicant(user.id); // Assuming getUserApplicant fetches the applicant data
@@ -164,11 +167,14 @@ const loginUser = async (req, res) => {
                 return res.status(404).json({ message: 'Applicant record not found' });
             }
             applicantId = userApplicant.id; // Get the applicant_id
+            applicantFirstname = userApplicant.first_name || '';
+            applicantLastname = userApplicant.last_name || '';
+            
         }
 
         // Step 2: Generate JWT token
         const token = jwt.sign(
-            { id: user.id, userType: user.userType, employerId, applicantId },
+            { id: user.id, userType: user.userType, employerId, applicantId,applicantFirstname,applicantLastname,employerName},
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -183,6 +189,9 @@ const loginUser = async (req, res) => {
                 userType: user.userType,
                 employerId: employerId, // Include employerId if the user is an employer
                 applicantId: applicantId, // Include applicantId if the user is an applicant
+                applicantFirstname:applicantFirstname,
+                applicantLastname:applicantLastname,
+                employerName:employerName
             }
         });
     } catch (error) {

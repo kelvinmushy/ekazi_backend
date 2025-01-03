@@ -7,7 +7,9 @@ const {
   } = require('../../controllers/admins/cvTemplateController');
   
 
-
+const {
+  getApplicantsController
+}= require('../../controllers/applicants/applicantController')
 
 
 
@@ -17,6 +19,7 @@ const {
 
 
 router.get('/cv', fetchCvTemplates);
+router.get('/all-applicants',getApplicantsController);
 
 
 module.exports = router;

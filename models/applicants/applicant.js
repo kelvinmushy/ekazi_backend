@@ -50,6 +50,114 @@ WHERE a.id = ?;
   }
 };
 
+//Get All Applicant will be here
+const getApplicantsWithDetails = async (page = 1, pageSize = 10, filters = {}) => {
+  try {
+    // Calculate the offset based on the page number and page size
+    const offset = (page - 1) * pageSize;
+
+    // Start the base SQL query
+    let query = `
+      SELECT 
+        u.email,
+        a.id,
+        a.first_name,
+        a.last_name,
+        a.about,
+        a.logo,
+        a.dob,
+        a.user_id,
+        a.gender_id,
+        a.marital_id,
+        aa.address,
+        ap.phone_number,
+        aa.region_id,
+        r.name AS region_name,
+        r.country_id AS country_id,
+        c.name AS country_name
+      FROM 
+        applicants a
+      LEFT JOIN applicant_addresses aa ON a.id = aa.applicant_id
+      LEFT JOIN users u ON a.user_id = u.id 
+      LEFT JOIN regions r ON aa.region_id = r.id
+      LEFT JOIN countries c ON r.country_id = c.id
+      LEFT JOIN marital_statuses m ON a.marital_id = m.id
+      LEFT JOIN genders g ON a.gender_id = g.id
+      LEFT JOIN applicant_phones ap ON a.id = ap.applicant_id
+    `;
+
+    // Array to hold filter conditions
+    const filterConditions = [];
+    const queryParams = [];
+
+    // Dynamically build the WHERE clause based on the provided filters
+    if (filters.country_id) {
+      filterConditions.push('r.country_id = ?');
+      queryParams.push(filters.country_id);
+    }
+    if (filters.region_id) {
+      filterConditions.push('aa.region_id = ?');
+      queryParams.push(filters.region_id);
+    }
+    if (filters.gender_id) {
+      filterConditions.push('a.gender_id = ?');
+      queryParams.push(filters.gender_id);
+    }
+
+    // Apply first_name filter if provided
+    if (filters.first_name && typeof filters.first_name === 'string' && filters.first_name.trim() !== '') {
+      console.log(`Applying first_name filter: '%${filters.first_name.trim()}%'`); // Debugging log
+      filterConditions.push('a.first_name LIKE ?');
+      queryParams.push(`%${filters.first_name.trim()}%`);
+    }
+
+    // Apply last_name filter if provided
+    if (filters.last_name && typeof filters.last_name === 'string' && filters.last_name.trim() !== '') {
+      console.log(`Applying last_name filter: '%${filters.last_name.trim()}%'`); // Debugging log
+      filterConditions.push('a.last_name LIKE ?');
+      queryParams.push(`%${filters.last_name.trim()}%`);
+    }
+
+    // Apply email filter if provided
+    if (filters.email && typeof filters.email === 'string' && filters.email.trim() !== '') {
+      console.log(`Applying email filter: '%${filters.email.trim()}%'`); // Debugging log
+      filterConditions.push('u.email LIKE ?');
+      queryParams.push(`%${filters.email.trim()}%`);
+    }
+
+    // If there are any filter conditions, add them to the query
+    if (filterConditions.length > 0) {
+      query += ' WHERE ' + filterConditions.join(' AND ');
+    }
+
+    // Add pagination to the query
+    query += ' LIMIT ? OFFSET ?';
+    queryParams.push(pageSize, offset);
+
+    console.log('Executing Query:', query); // Debugging log for the final query
+    console.log('With Parameters:', queryParams); // Debugging log for the parameters
+
+    // Execute the query with the filters and pagination
+    const [applicants] = await db.query(query, queryParams);
+
+    // Return an empty array if no applicants are found
+    if (applicants.length === 0) {
+      console.log('No applicants found for this filter'); // Debugging log
+      return [];
+    }
+
+    return applicants;
+  } catch (error) {
+    console.error('Error fetching applicants:', error);
+    throw new Error('Could not fetch applicants');
+  }
+};
+
+
+
+
+
+
 // Create a new applicant and save associated addresses and phone numbers
 const createApplicant = async (user_id, otherDetails) => {
   try {
@@ -187,4 +295,4 @@ const updateApplicant = async (applicant_id, updatedDetails) => {
   }
 };
 
-module.exports = { createApplicant, getApplicantById ,updateApplicant };
+module.exports = { createApplicant, getApplicantById ,updateApplicant,getApplicantsWithDetails};

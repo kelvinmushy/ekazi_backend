@@ -150,26 +150,39 @@ const deleteUserEmployer = async (id) => {
 
 // Fetch employer by user ID
 const getUserEmployer = async (userId) => {
- 
-  const connection = await db.getConnection();
+  const connection = await db.getConnection(); // Get a connection to the database
   try {
+    // SQL query to join user_employers with employers and fetch relevant details
     const [result] = await connection.query(
-      'SELECT employer_id FROM user_employers WHERE user_id = ?',
+      `SELECT 
+        ue.employer_id, 
+        e.company_name
+       FROM 
+        user_employers ue
+       JOIN 
+        employers e ON ue.employer_id = e.id
+       WHERE 
+        ue.user_id = ?`,
       [userId]
     );
-    connection.release();
-    return result[0] || null;
+    
+    connection.release(); // Release the connection back to the pool
+    
+    return result[0] || null; // Return the first result or null if no match
   } catch (error) {
     console.error('Error fetching employer record:', error.message);
+    connection.release(); // Release the connection in case of an error
     throw new Error('Could not fetch employer data');
   }
 };
+
+
 const getUserApplicant=async(id)=>{
  // console.log(id);
   const connection = await db.getConnection();
   try {
     const [result] = await connection.query(
-      'SELECT id FROM applicants WHERE user_id = ?',
+      'SELECT id,first_name FROM applicants WHERE user_id = ?',
       [id]
     );
     connection.release();

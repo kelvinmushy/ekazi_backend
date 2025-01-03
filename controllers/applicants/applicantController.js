@@ -1,4 +1,4 @@
-const { createApplicant, getApplicantById,updateApplicant } = require('../../models/applicants/applicant'); // Importing model functions
+const { createApplicant, getApplicantById,updateApplicant,getApplicantsWithDetails } = require('../../models/applicants/applicant'); // Importing model functions
 const { saveSelectedCvTemplate } = require('../../models/applicants/applicantSelectedCv'); // Importing model functions
 
 const db = require('../../config/db');
@@ -49,21 +49,72 @@ const getApplicantByIdController = async (req, res) => {
   }
 };
 
-// Controller to get all applicants (if needed)
+
+
 const getApplicantsController = async (req, res) => {
   try {
-    // Assuming you have a function that fetches all applicants with details (addresses and phone numbers)
-    const applicants = await getApplicantsWithDetails();
+    const page = parseInt(req.query.page, 10) || 1; // Default to page 1 if not provided
+    const pageSize = parseInt(req.query.pageSize, 10) || 10; // Default to 10 items per page if not provided
 
-    if (applicants.length === 0) {
-      return res.status(404).json({ message: 'No applicants found' });
+    // Extract filters from query string
+    const { 
+      country_id, 
+      region_id, 
+      gender_id, 
+      experience_id, 
+      category_id, 
+      first_name, 
+      last_name, 
+      email 
+    } = req.query;
+
+    // Log the filters to verify that they are being passed correctly
+    console.log('Received filters:', { country_id, region_id, gender_id, experience_id, category_id, first_name, last_name, email });
+
+    // Prepare filter conditions for the SQL query
+    const filters = {};
+
+    if (country_id) filters.country_id = country_id;
+    if (region_id) filters.region_id = region_id;
+    if (gender_id) filters.gender_id = gender_id;
+    if (experience_id) filters.experience_id = experience_id;
+    if (category_id) filters.category_id = category_id;
+
+    // Only apply first_name filter if it's not empty
+    if (first_name && first_name.trim() !== '') {
+      filters.first_name = first_name.trim();
+    }
+    // Apply last_name filter if it's not empty
+    if (last_name && last_name.trim() !== '') {
+      filters.last_name = last_name.trim();
+    }
+    // Apply email filter if it's not empty
+    if (email && email.trim() !== '') {
+      filters.email = email.trim();
     }
 
-    return res.status(200).json({ applicants });
-    
+    // Call the function to get applicants with the filters
+    const applicants = await getApplicantsWithDetails(page, pageSize, filters);
+
+    // Check if there is a next page
+    const nextPage = applicants.length === pageSize ? page + 1 : null;
+
+    // Return the response with the filtered data
+    res.status(200).json({
+      success: true,
+      data: applicants,
+      pagination: {
+        page,
+        pageSize,
+        nextPage,
+      },
+    });
   } catch (error) {
     console.error('Error fetching applicants:', error);
-    return res.status(500).json({ message: 'Error fetching applicants', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Could not fetch applicants',
+    });
   }
 };
 
