@@ -7,7 +7,9 @@ const {
     linkJobSkills,
     updateJob,
     deleteJob,
-    getJobCount
+    getJobCount,
+    getAllJobModel,
+    getJobByModelId
 } = require('../../models/jobs/jobModel');
 const db = require('../../config/db');
 
@@ -17,6 +19,30 @@ const getAllJobs = async (req, res) => {
     const { page = 1, limit = 10 ,status,employer_id} = req.query;
     try {
         const jobs = await getJobs(page, limit,status,employer_id);
+        res.json(jobs);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch jobs' });
+    }
+};
+
+// Fetch all jobs with pagination
+const getUniversalJobs = async (req, res) => {
+    category_id=req.params.categoryId;
+    console.log('Category Id',category_id);
+    const { page = 1, limit = 10 ,status,employer_id} = req.query;
+    try {
+        const jobs = await getAllJobModel(category_id);
+        res.json(jobs);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch jobs' });
+    }
+};
+// Fetch all jobs with pagination
+const getJobById = async (req,res) => {
+    const id = req.params.id;
+    
+    try {
+        const jobs = await getJobByModelId(id);
         res.json(jobs);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch jobs' });
@@ -144,4 +170,4 @@ const getJobCounts = async (req, res) => {
     }
 };
 
-module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts };
+module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts,getUniversalJobs,getJobById };

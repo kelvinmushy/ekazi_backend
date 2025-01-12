@@ -221,11 +221,77 @@ const editExperienceById = async (req, res) => {
       return res.status(500).json({ message: 'Could not delete experience' });
     }
   };
+  const getTotalExperience = async (req, res) => {
+
+    const { applicantId } = req.params;
+
+    
+    try {
+      const experiences = await selectExperiencesByApplicantId(applicantId);
+  
+      // Helper function to calculate the duration in months between two dates
+      const calculateDurationInMonths = (fromDate, toDate) => {
+        const startDate = new Date(fromDate);
+        const endDate = new Date(toDate);
+  
+        // Check if the date is valid
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          throw new Error("Invalid date format");
+        }
+  
+        let years = endDate.getFullYear() - startDate.getFullYear();
+        let months = endDate.getMonth() - startDate.getMonth();
+  
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+  
+        return years * 12 + months; // Return total experience in months
+      };
+  
+      let totalExperienceMonths = 0;
+  
+      for (let experience of experiences) {
+        const { from, to, is_currently_working } = experience;
+  
+        // Handle the 'Present' case where 'to' date is "Present"
+        let endDate;
+        if (to === 'Present' || is_currently_working === 1) {
+          // Use current date if the job is ongoing
+          endDate = new Date();
+        } else {
+          // Otherwise, use the 'to' date from the record
+          endDate = new Date(to);
+        }
+  
+        // Ensure from date is valid and calculate experience
+        if (from && endDate) {
+          const experienceInMonths = calculateDurationInMonths(from, endDate);
+          totalExperienceMonths += experienceInMonths;
+        }
+      }
+  
+      // Convert total experience in months to years and months for easier interpretation
+      const totalYears = Math.floor(totalExperienceMonths / 12);
+      const remainingMonths = totalExperienceMonths % 12;
+  
+      return res.json({ years: totalYears, months: remainingMonths });
+  
+    } catch (error) {
+      console.error("Error calculating total experience:", error);
+      return res.status(500).json({ error: "Error calculating total experience" });
+    }
+  };
+  
+  
   
   module.exports = {
     getExperiencesByApplicantId,
     createExperienceByApplicantId,
     editExperienceById,
     deleteExperienceById,
+    getTotalExperience
+
   };
   

@@ -1,9 +1,18 @@
 // controllers/admins/categoryController.js
-const { getCategories,createCategory,updateCategory,deleteCategory}=require('../../models/resources/categoryModel')
+const { getCategories,createCategory,updateCategory,deleteCategory,getJobsByCategory}=require('../../models/resources/categoryModel')
 
 const getAllCategories = async (req, res) => {
   try {
     const categories = await getCategories();
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+};
+
+const getAllIndustries= async (req, res) => {
+  try {
+    const categories = await getJobsByCategory();
     res.json(categories);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch categories' });
@@ -49,4 +58,4 @@ const deleteOldCategory = async (req, res) => {
   }
 };
 
-module.exports = { getAllCategories, createNewCategory, updateOldCategory, deleteOldCategory };
+module.exports = { getAllCategories, createNewCategory, updateOldCategory, deleteOldCategory ,getAllIndustries};

@@ -20,6 +20,7 @@ const {
     createExperienceByApplicantId,
     editExperienceById,
     deleteExperienceById,
+    getTotalExperience
 } = require('../../controllers/applicants/applicantExperiencesController');
 
 const {
@@ -102,6 +103,8 @@ router.get('/experiences/:applicantId', getExperiencesByApplicantId);  // Get al
 router.post('/experiences/:applicantId', createExperienceByApplicantId);  // Create new experience for an applicant
 router.put('/experiences/:experienceId', editExperienceById);  // Edit an experience by ID
 router.delete('/experiences/:experienceId', deleteExperienceById);  // Delete an experience by ID
+
+router.get('/total-experiences/:applicantId', getTotalExperience);  
 
 // Languages Routes
 router.get('/languages/:applicantId', getLanguagesByApplicantId);  // Get all languages by applicant ID

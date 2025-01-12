@@ -179,5 +179,15 @@ const getEmployerIdFromUser = async (userId) => {
   return rows.length > 0 ? rows[0].employer_id : null;
 };
 
+const getEmployerModel = async (fetchAll = false) => {
 
-module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser };
+  const limitClause = fetchAll ? "" : "LIMIT 12";
+  const query = `SELECT id,logo,company_name FROM employers ${limitClause}`;
+  const [rows] = await db.execute(query);
+
+  return rows;
+
+};
+
+
+module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser,getEmployerModel};

@@ -1,41 +1,6 @@
 const ApplicantSkills = require('../../models/applicants/applicantSkills');
 const { createSkill } = require('../../models/resources/skillModel');
 
-// Create a new skill for an applicant
-// const createApplicantSkill = async (req, res) => {
-
-  
-//     const { applicant_id, skill_id, creator_id } = req.body;
-
-//     try {
-//         let actualSkillId;
-
-//         // Check if skill_id is numeric (for existing skill)
-//         if (isNaN(skill_id)) {
-//             // Skill ID is not a number, so create a new skill
-          
-//            console.log(req.body.skill_id);
-//             actualSkillId = await createSkill({ skill_name: skill_id, creator_id }); // Use the new skill name and creator ID
-//             if (!actualSkillId) {
-//                 return res.status(400).json({ message: 'Failed to create new skill' });
-//             }
-//         } else {
-//             // Skill ID is numeric, use it as is
-//             actualSkillId = skill_id;
-//         }
-
-//         // Now associate the skill (existing or newly created) with the applicant
-//         const result = await ApplicantSkills.createSkill(applicant_id, actualSkillId);
-//         if (result.affectedRows > 0) {
-//             return res.status(201).json({ message: 'Skill added successfully' });
-//         } else {
-//             return res.status(400).json({ message: 'Failed to add skill' });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Internal server error' });
-//     }
-// };
 
 const createApplicantSkill = async (req, res) => {
     try {

@@ -1,4 +1,151 @@
 const db = require('../../config/db');
+
+const getAllJobModel = async (categoryId = null) => {
+    try {
+        // Start constructing the base SQL query
+        let query = `
+            SELECT 
+                j.*, 
+                e.company_name, 
+                e.logo, 
+                GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
+                GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
+                GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
+                GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
+                GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
+                GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
+            FROM 
+                jobs j
+            LEFT JOIN 
+                employers e ON j.employer_id = e.id
+            LEFT JOIN 
+                job_categories jc ON j.id = jc.job_id
+            LEFT JOIN 
+                industries c ON jc.category_id = c.id
+            LEFT JOIN 
+                job_cultures jcu ON j.id = jcu.job_id
+            LEFT JOIN 
+                cultures cu ON jcu.culture_id = cu.id
+            LEFT JOIN 
+                job_skills js ON j.id = js.job_id
+            LEFT JOIN 
+                skills s ON js.skill_id = s.id
+        `;
+    
+        // Check if categoryId is "null" (as a string) and treat it as null
+        if (categoryId === "null") {
+            categoryId = null;  // Set categoryId to null if the string "null" is passed
+        }
+    
+        // If categoryId is provided, add a WHERE condition to the query
+        if (categoryId) {
+            query += ` WHERE jc.category_id = ?`;  // Filter jobs by category
+        }
+    
+        // Add GROUP BY and LIMIT clauses
+        query += ` GROUP BY j.id LIMIT 8;`;
+    
+        // Prepare parameters for the query (categoryId is passed if provided)
+        const params = categoryId ? [categoryId] : [];
+    
+        // Log the generated query and parameters for debugging
+        console.log("Generated SQL Query:", query);
+        console.log("Query Parameters:", params);
+    
+        // Execute the query with the correct parameters
+        const [results] = await db.query(query, params);
+    
+        // Log the results for debugging
+        console.log("Results from DB:", results);
+    
+        // Transform the result to split comma-separated values into arrays
+        return results.map(job => ({
+            ...job,
+            category_ids: job.category_ids ? job.category_ids.split(',') : [],
+            category_names: job.category_names ? job.category_names.split(',') : [],
+            culture_ids: job.culture_ids ? job.culture_ids.split(',') : [],
+            culture_names: job.culture_names ? job.culture_names.split(',') : [],
+            skill_ids: job.skill_ids ? job.skill_ids.split(',') : [],
+            skill_names: job.skill_names ? job.skill_names.split(',') : [],
+        }));
+    } catch (error) {
+        console.error('Error fetching jobs:', error.message);
+        throw new Error('Failed to fetch jobs');
+    }
+    
+    
+};
+
+const getJobByModelId = async (id) => {
+    try {
+        // Constructing the SQL query to fetch the job by its ID
+        let query = `
+            SELECT 
+                j.*, 
+                e.company_name, 
+                e.logo, 
+                GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
+                GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
+                GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
+                GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
+                GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
+                GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
+            FROM 
+                jobs j
+            LEFT JOIN 
+                employers e ON j.employer_id = e.id  -- Join with employers table to get company_name and logo
+            LEFT JOIN 
+                job_categories jc ON j.id = jc.job_id
+            LEFT JOIN 
+                industries c ON jc.category_id = c.id
+            LEFT JOIN 
+                job_cultures jcu ON j.id = jcu.job_id
+            LEFT JOIN 
+                cultures cu ON jcu.culture_id = cu.id
+            LEFT JOIN 
+                job_skills js ON j.id = js.job_id
+            LEFT JOIN 
+                skills s ON js.skill_id = s.id
+            WHERE
+                j.id = ?;  -- Add filter for the specific job ID
+        `;
+    
+        // Prepare the parameters for the query (the jobId to filter the results)
+        const params = [id];
+    
+        // Log the generated query and parameters for debugging
+        console.log("Generated SQL Query:", query);
+        console.log("Query Parameters:", params);
+    
+        // Execute the query with the correct parameters
+        const [results] = await db.query(query, params);
+    
+        // If no job found, return null or an empty object
+        if (results.length === 0) {
+            console.log('No job found with the given ID');
+            return null;
+        }
+    
+        // Log the results for debugging
+        console.log("Results from DB:", results);
+    
+        // Transform the result to split comma-separated values into arrays
+        return results.map(job => ({
+            ...job,
+            category_ids: job.category_ids ? job.category_ids.split(',') : [],
+            category_names: job.category_names ? job.category_names.split(',') : [],
+            culture_ids: job.culture_ids ? job.culture_ids.split(',') : [],
+            culture_names: job.culture_names ? job.culture_names.split(',') : [],
+            skill_ids: job.skill_ids ? job.skill_ids.split(',') : [],
+            skill_names: job.skill_names ? job.skill_names.split(',') : [],
+        }))[0]; // Return the first (and only) job in the result
+    } catch (error) {
+        console.error('Error fetching job by ID:', error.message);
+        throw new Error('Failed to fetch job details');
+    }
+};
+
+
 const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
     try {
         // If employer_id is a string "null", convert it to null
@@ -275,5 +422,7 @@ module.exports = {
     linkJobSkills, 
     updateJob, 
     deleteJob,
-    getJobCount
+    getJobCount,
+    getAllJobModel,
+    getJobByModelId
 };

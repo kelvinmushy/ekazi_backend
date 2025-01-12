@@ -1,6 +1,7 @@
 // controllers/employerController.js
 
-const { getEmployerIdFromUser,getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId } = require('../../models/employer/employer');
+const { getEmployerIdFromUser,getEmployers, getEmployerById, 
+  createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId ,getEmployerModel} = require('../../models/employer/employer');
 const db = require('../../config/db');
 const fs = require('fs');
 const path = require('path');
@@ -14,6 +15,24 @@ const getAllEmployers = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch employers' });
   }
 };
+
+
+const getAllEmployersFunction = async (req, res) => {
+  try {
+    // Check the query parameter to determine whether to fetch all or limit to 12
+    const fetchAll = req.query.fetchAll === 'true';
+
+    // Call getEmployer with the appropriate parameter
+    const employers = await getEmployerModel(fetchAll);
+
+    // Respond with the employers list
+    res.json(employers);
+  } catch (error) {
+    console.error('Error fetching employers:', error);
+    res.status(500).json({ error: 'Failed to fetch employers' });
+  }
+};
+
 
 // Get employer by ID
 const getEmployer = async (req, res) => {
@@ -244,4 +263,4 @@ const getEmployerByUser = async (req, res) => {
 
 
 
-module.exports = { getAllEmployers, getEmployer, createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser,uploadLogo,getLogo};
+module.exports = { getAllEmployers, getEmployer, getAllEmployersFunction,createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser,uploadLogo,getLogo,getAllEmployersFunction};

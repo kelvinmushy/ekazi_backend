@@ -1,5 +1,6 @@
 const { createApplicant, getApplicantById,updateApplicant,getApplicantsWithDetails } = require('../../models/applicants/applicant'); // Importing model functions
 const { saveSelectedCvTemplate } = require('../../models/applicants/applicantSelectedCv'); // Importing model functions
+const {selectExperiencesByApplicantId}=require('../../models/applicants/applicantExperiences');
 
 const db = require('../../config/db');
 const fs = require('fs');
@@ -65,15 +66,17 @@ const getApplicantsController = async (req, res) => {
       category_id, 
       first_name, 
       last_name, 
-      email 
+      email,
+      marital_id
     } = req.query;
 
     // Log the filters to verify that they are being passed correctly
-    console.log('Received filters:', { country_id, region_id, gender_id, experience_id, category_id, first_name, last_name, email });
+    console.log('Received filters:', { country_id, region_id,marital_id, gender_id, experience_id, category_id, first_name, last_name, email });
 
     // Prepare filter conditions for the SQL query
     const filters = {};
 
+    if (marital_id) filters.marital_id = marital_id;
     if (country_id) filters.country_id = country_id;
     if (region_id) filters.region_id = region_id;
     if (gender_id) filters.gender_id = gender_id;
@@ -267,11 +270,13 @@ const applicanSelectCv = async (req, res) => {
   }
 };
 
+
 module.exports = {
   createApplicantController,
   getApplicantByIdController,
   getApplicantsController,
   updateApplicantController,
   uploadLogo,getLogo,
-  applicanSelectCv
+  applicanSelectCv,
+  
 };

@@ -99,11 +99,18 @@ const getApplicantsWithDetails = async (page = 1, pageSize = 10, filters = {}) =
       filterConditions.push('aa.region_id = ?');
       queryParams.push(filters.region_id);
     }
+    if (filters.region_id) {
+      filterConditions.push('aa.region_id = ?');
+      queryParams.push(filters.region_id);
+    }
+    if (filters.marital_id) {
+      filterConditions.push('a.marital_id = ?');
+      queryParams.push(filters.marital_id);
+    }
     if (filters.gender_id) {
       filterConditions.push('a.gender_id = ?');
       queryParams.push(filters.gender_id);
     }
-
     // Apply first_name filter if provided
     if (filters.first_name && typeof filters.first_name === 'string' && filters.first_name.trim() !== '') {
       console.log(`Applying first_name filter: '%${filters.first_name.trim()}%'`); // Debugging log
