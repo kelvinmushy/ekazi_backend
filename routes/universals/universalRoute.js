@@ -26,7 +26,7 @@ const {
     getAllIndustries
 } = require('../../controllers/admins/categoryController'); // Ensure this path is correct
 const {
-    getAllEmployersFunction
+    getAllEmployersFunction,getAllEmployersJob
 } = require('../../controllers/employers/EmployerController'); // Ensure this path is correct
 
 
@@ -64,7 +64,7 @@ router.get('/industries', getAllIndustries);
 
 router.get('/employers',getAllEmployersFunction);
 
-
+router.get('/employers/jobs/:id',getAllEmployersJob);
 
 
 

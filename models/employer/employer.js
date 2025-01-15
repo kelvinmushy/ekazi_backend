@@ -189,5 +189,47 @@ const getEmployerModel = async (fetchAll = false) => {
 
 };
 
+const getEmployerJobModel = async (id) => {
+  
+  const query = `
+    SELECT 
+        j.*, 
+        e.company_name, 
+        e.logo, 
+        e.id AS employerId, 
+        GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
+        GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
+        GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
+        GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
+        GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
+        GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
+    FROM 
+        jobs j
+    LEFT JOIN 
+        employers e ON j.employer_id = e.id
+    LEFT JOIN 
+        job_categories jc ON j.id = jc.job_id
+    LEFT JOIN 
+        industries c ON jc.category_id = c.id
+    LEFT JOIN 
+        job_cultures jcu ON j.id = jcu.job_id
+    LEFT JOIN 
+        cultures cu ON jcu.culture_id = cu.id
+    LEFT JOIN 
+        job_skills js ON j.id = js.job_id
+    LEFT JOIN 
+        skills s ON js.skill_id = s.id
+    WHERE 
+        j.employer_id = ?
+    GROUP BY 
+        j.id
+  `;
 
-module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser,getEmployerModel};
+  const [rows] = await db.execute(query, [id]);
+
+  return rows;
+};
+
+
+
+module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser,getEmployerModel,getEmployerJobModel};
