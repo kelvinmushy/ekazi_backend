@@ -4,19 +4,25 @@ const db = require('../../config/db');
 const selectApplicationsByApplicantId = async (applicantId) => {
   const query = `
     SELECT 
-      id, 
-      job_id,
-      applicant_id,
-      letter,
-      hide,
-      status,
-      stage_id,
-      created_at,
-      updated_at
-    FROM 
-      applicant_applications
-    WHERE 
-      applicant_id = ?;
+    aa.id, 
+    aa.job_id,
+    aa.applicant_id,
+    aa.letter,
+    aa.hide,
+    aa.status,
+    aa.stage_id,
+    aa.created_at,
+    aa.updated_at,
+    j.title AS job_title,
+    j.posting_date,
+    j.expired_date
+FROM 
+    applicant_applications aa
+JOIN 
+    jobs j ON aa.job_id = j.id
+WHERE 
+    aa.applicant_id = ?;
+
   `;
   const [rows] = await db.execute(query, [applicantId]);
   return rows;
@@ -44,20 +50,16 @@ const createApplicantApplication = async (applicationData) => {
 // 3. Edit an existing application entry by ID
 const editApplicantApplication = async (applicationId, updatedData) => {
   const query = `
-    UPDATE applicant_applications
-    SET 
-      job_id = ?, 
-      applicant_id = ?, 
-      letter = ?, 
-      hide = ?, 
-      status = ?, 
-      stage_id = ?
-    WHERE 
-      id = ?;
-  `;
-  const { job_id, applicant_id, letter, hide, status, stage_id } = updatedData;
-  const [result] = await db.execute(query, [job_id, applicant_id, letter, hide, status, stage_id, applicationId]);
-  return result;
+  UPDATE applicant_applications
+  SET letter = ?
+  WHERE id = ?;
+`;
+const { letter } = updatedData;
+const [result] = await db.execute(query, [letter, applicationId]);
+
+return result;
+
+
 };
 
 // 4. Delete an application entry by ID
