@@ -60,7 +60,11 @@ const {
  
  } = require('../../controllers/applicants/applicantSocialMediaController'); // Educational Qualifications controller
 
- 
+ const {
+ applicantApplication
+} = require('../../controllers/applicants/ApplicantApplicationController'); // Educational Qualifications controller
+
+
 const upload = require('../../middleware/multerMiddleware');
 const courses = require('../../middleware/multerCourseMiddleware'); // Multer middleware for handling file uploads (e.g., course attachments)
 const education = require('../../middleware/multerEducationMiddleware'); 
@@ -138,5 +142,9 @@ router.get('/social-media/:applicantId', getSocialMediaByApplicantId);  // Get a
 router.post('/social-media', createApplicantSocialMedia);  // Create new social media links
 router.put('/social-media', updateSocialMediaLink);  // Edit a social media link by ID
 router.delete('/social-media/:socialMediaId', deleteSocialMediaLink); 
+
+//applicantApplication
+router.post('/applications', applicantApplication);
+
 
 module.exports = router;

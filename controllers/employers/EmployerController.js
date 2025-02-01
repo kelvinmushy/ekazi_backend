@@ -54,6 +54,7 @@ const getAllEmployersJob = async (req, res) => {
 // Get employer by ID
 const getEmployer = async (req, res) => {
   const { id } = req.params;
+
   try {
     const employer = await getEmployerById(id);
     if (!employer) {
