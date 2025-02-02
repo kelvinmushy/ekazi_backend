@@ -72,9 +72,66 @@ const deleteApplicantApplication = async (applicationId) => {
   return result;
 };
 
+//applicant get all saved job
+
+// Function to get saved jobs by applicant_id
+const getSavedJobsByApplicantId = async (applicantId) => {
+  const query = `
+    SELECT sj.id, sj.job_id, sj.applicant_id, j.title, j.posting_date, j.expired_date
+    FROM applicant_saved_jobs sj
+    JOIN jobs j ON sj.job_id = j.id
+    WHERE sj.applicant_id = ?;
+  `;
+
+  try {
+    const [rows] = await db.execute(query, [applicantId]);
+    return rows; // Return the saved jobs
+  } catch (error) {
+    console.error("Error fetching saved jobs:", error);
+    throw new Error("Failed to fetch saved jobs");
+  }
+};
+
+
+//applicant save job
+const JobSavedModel = async (savedData) => {
+  const { job_id, applicant_id } = savedData; // Destructure the saved data
+
+  const query = `
+    INSERT INTO applicant_saved_jobs (job_id, applicant_id) 
+    VALUES (?, ?);
+  `;
+
+  try {
+    const [result] = await db.execute(query, [job_id, applicant_id]);
+    return {
+      id: result.insertId,
+      job_id,
+      applicant_id,
+    };
+  } catch (error) {
+    console.error("Error saving job:", error);
+    throw new Error("Failed to save job");
+  }
+};
+
+//delete saved job
+// 4. Delete an application entry by ID
+const deleteSavedJobModel = async (savedId) => {
+  const query = `
+    DELETE FROM applicant_saved_jobs
+    WHERE id = ?;
+  `;
+  const [result] = await db.execute(query, [savedId]);
+  return result;
+};
+
 module.exports = {
   selectApplicationsByApplicantId,
   createApplicantApplication,
   editApplicantApplication,
   deleteApplicantApplication,
+  deleteSavedJobModel,
+  JobSavedModel,
+  getSavedJobsByApplicantId
 };

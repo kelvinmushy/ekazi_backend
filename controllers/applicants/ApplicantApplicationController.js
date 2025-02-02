@@ -1,5 +1,6 @@
 // Import the required model functions
-const { createApplicantApplication,deleteApplicantApplication,selectApplicationsByApplicantId,editApplicantApplication } = require('../../models/applicants/applicantApplication');
+const { createApplicantApplication,deleteApplicantApplication,selectApplicationsByApplicantId
+  ,editApplicantApplication,JobSavedModel,deleteSavedJobModel,getSavedJobsByApplicantId} = require('../../models/applicants/applicantApplication');
 
 
 
@@ -102,7 +103,87 @@ const deleteApplication = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+//applicant get all saved jobs here
+
+
+const applicantGetSavedJob = async (req, res) => {
+  const { applicant_id } = req.params; // Get applicant_id from request parameters
+
+  try {
+    // Fetch saved jobs for the given applicant ID
+    const savedJobs = await getSavedJobsByApplicantId(applicant_id);
+    
+    // Check if any saved jobs were found
+    if (savedJobs.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No saved jobs found for this applicant.",
+      });
+    }
+    
+    // Return the saved jobs
+    return res.status(200).json({
+      success: true,
+      data: savedJobs,
+    });
+  } catch (error) {
+    console.error("Error fetching saved jobs:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message, // Return error message
+    });
+  }
+};
+
+// Function to save a job
+const applicantSaveJob = async (req, res) => {
+  const { job_id, applicant_id } = req.body; // Destructure job_id and applicant_id from the request body
+  try {
+    const savedJob = await JobSavedModel({ job_id, applicant_id }); // Call the model function to save the job
+    return res.status(201).json({
+      success: true,
+      message: "Job saved successfully",
+      data: savedJob, // Return the saved job data
+    });
+  } catch (error) {
+    console.error("Error saving job:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message, // Return error message
+    });
+  }
+};
+
+// Function to delete a saved job
+const applicantDeleteSavedJob = async (req, res) => {
+  const { savedJobId } = req.params; // Get the saved job ID from the request parameters
+    
+
+  try {
+    const result = await deleteSavedJobModel(savedJobId); // Call the model function to delete the job
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Saved job not found", // If no rows are affected, the job was not found
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Saved job deleted successfully", // Return success message
+    });
+  } catch (error) {
+    console.error("Error deleting saved job:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message, // Return error message
+    });
+  }
+};
 
 
 // Export the controller
-module.exports = { applicantApplication,selectApplicantById,updateApplication,deleteApplication };
+module.exports = { applicantApplication,selectApplicantById,
+  updateApplication,deleteApplication,
+  applicantSaveJob,applicantDeleteSavedJob,
+  applicantGetSavedJob
+};
