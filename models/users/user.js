@@ -19,11 +19,14 @@ const getUsers = async (employerId) => {
   try {
     // SQL query to join users with user_employers and filter by employer_id
     const [results] = await connection.query(
+      
       `SELECT u.* 
        FROM users u
        JOIN user_employers ue ON u.id = ue.user_id
        WHERE ue.employer_id = ?`, 
+
       [employerId]
+
     );
     
     return results; // Return the list of users for the specified employer_id

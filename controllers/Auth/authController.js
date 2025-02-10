@@ -148,6 +148,9 @@ const loginUser = async (req, res) => {
         // Initialize variables
         let employerId = null;
         let applicantId = null;
+        let employerName=null;
+        let applicantFirstname=null;
+        let applicantLastname=null;
 
         // Step 1: Check if the user is an employer or applicant
         if (user.userType === 'employer') {
@@ -158,7 +161,7 @@ const loginUser = async (req, res) => {
                 return res.status(404).json({ message: 'Employer record not found' });
             }
             employerId = userEmployer.employer_id; // Get the employer_id
-            employerName = userEmployer.company_name; 
+            employerName = userEmployer.company_name|| ''; 
             
         } else if (user.userType === 'applicant') {
             // If the user is an applicant, fetch the applicant_id
