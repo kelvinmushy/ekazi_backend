@@ -9,7 +9,8 @@ const {
     deleteJob,
     getJobCount,
     getAllJobModel,
-    getJobByModelId
+    getJobByModelId,
+    getDashboardStats
 } = require('../../models/jobs/jobModel');
 const db = require('../../config/db');
 
@@ -170,4 +171,17 @@ const getJobCounts = async (req, res) => {
     }
 };
 
-module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts,getUniversalJobs,getJobById };
+const getDashboardStatic= async (req, res) => {
+
+    try {
+        const employer_id = req.params.employer_id;
+        const stats = await getDashboardStats(employer_id);
+        res.json(stats);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+
+
+};
+
+module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts,getUniversalJobs,getJobById,getDashboardStatic };

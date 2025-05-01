@@ -47,4 +47,9 @@ router.delete('/user/delete/:id', deleteOldUser);
 router.post('/upload-logo/:employerId', upload, uploadLogo);
 router.get('/logo/:employerId', getLogo);
 
+
+
+
+
+
 module.exports = router;

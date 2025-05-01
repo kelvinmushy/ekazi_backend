@@ -185,7 +185,7 @@ const getUserApplicant=async(id)=>{
   const connection = await db.getConnection();
   try {
     const [result] = await connection.query(
-      'SELECT id,first_name FROM applicants WHERE user_id = ?',
+      'SELECT id,first_name,last_name FROM applicants WHERE user_id = ?',
       [id]
     );
     connection.release();

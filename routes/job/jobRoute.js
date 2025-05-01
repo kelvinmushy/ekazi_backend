@@ -6,7 +6,8 @@ const {
     createNewJob,
     updateOldJob,
     deleteOldJob,
-    getJobCounts
+    getJobCounts,
+    getDashboardStatic
   } = require('../../controllers/jobs/jobController');
 
 // Job Routes API
@@ -15,5 +16,11 @@ router.post('/create', createNewJob);
 router.put('/update/:id', updateOldJob);
 router.delete('/delete/:id', deleteOldJob);
 router.get('/counts/:employerId', getJobCounts);
+
+
+//Get Employer Static
+router.get('/dashboard-stats/:employer_id', getDashboardStatic);  // Notice there's no `:employer_id` in the route
+
+
 
 module.exports = router;
