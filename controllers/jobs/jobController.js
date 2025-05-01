@@ -10,7 +10,8 @@ const {
     getJobCount,
     getAllJobModel,
     getJobByModelId,
-    getDashboardStats
+    getDashboardStats,
+    jobApplicants
 } = require('../../models/jobs/jobModel');
 const db = require('../../config/db');
 
@@ -184,4 +185,26 @@ const getDashboardStatic= async (req, res) => {
 
 };
 
-module.exports = { getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts,getUniversalJobs,getJobById,getDashboardStatic };
+const getJobApplicants = async (req, res) => {
+    try {
+      const jobId = req.params.jobId;
+  
+      if (!jobId) {
+        return res.status(400).json({ message: "jobId is required" });
+      }
+  
+      const result = await jobApplicants(jobId); // Call the model function
+  
+      if (!result.jobTitle) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+  
+      res.json(result); // Return job title and applicants
+    } catch (error) {
+      console.error("Error in getJobApplicants:", error.message);
+      res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+  };
+  
+
+module.exports = {getJobApplicants, getAllJobs, createNewJob, updateOldJob, deleteOldJob,getJobCounts,getUniversalJobs,getJobById,getDashboardStatic };

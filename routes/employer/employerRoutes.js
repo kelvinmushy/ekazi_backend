@@ -1,7 +1,7 @@
 // routes/employerRoutes.js
 const upload = require('../../middleware/multerMiddleware');
 const express = require('express');
-const { getAllEmployers, getEmployer, createNewEmployer, updateOldEmployer, deleteOldEmployer, getEmployerByUser,uploadLogo,getLogo } = require('../../controllers/employers/EmployerController');
+const { getAllEmployers,getRecruitmentStages, getEmployer, createNewEmployer, updateOldEmployer, deleteOldEmployer, getEmployerByUser,uploadLogo,getLogo } = require('../../controllers/employers/EmployerController');
 //User API
 const {
     getAllUsers,
@@ -46,7 +46,7 @@ router.delete('/user/delete/:id', deleteOldUser);
 // Route to upload a logo for a specific employer
 router.post('/upload-logo/:employerId', upload, uploadLogo);
 router.get('/logo/:employerId', getLogo);
-
+router.get('/recruitment-stage/:employerId', getRecruitmentStages);
 
 
 

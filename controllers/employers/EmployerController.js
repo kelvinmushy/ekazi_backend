@@ -1,6 +1,6 @@
 // controllers/employerController.js
 
-const { getEmployerIdFromUser,getEmployers, getEmployerById, 
+const {getCompanyRecruitmentStage, getEmployerIdFromUser,getEmployers, getEmployerById, 
   createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId ,getEmployerModel,getEmployerJobModel} = require('../../models/employer/employer');
 const db = require('../../config/db');
 const fs = require('fs');
@@ -274,11 +274,37 @@ const getEmployerByUser = async (req, res) => {
   
   
  
-  
-  
-  
+// Controller function for getting company recruitment stages
+const getRecruitmentStages = async (req, res) => {
+  const employerId = req.params.employerId;  // Use employerId from route params
+
+  if (!employerId) {
+    return res.status(400).json({
+      message: 'Bad Request',
+      error: 'employerId is required and cannot be undefined or null',
+    });
+  }
+
+  try {
+    // Fetch recruitment stages using the model function
+    const stages = await getCompanyRecruitmentStage(employerId);  // Pass employerId instead of companyId
+
+    if (!stages || stages.length === 0) {
+      return res.status(404).json({ message: 'No recruitment stages found for this employer' });
+    }
+
+    // Respond with the stages
+    return res.json({ stages });
+
+  } catch (error) {
+    console.error('Error fetching recruitment stages:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
 
 
 
-
-module.exports = { getAllEmployers, getEmployer, getAllEmployersFunction,createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser,uploadLogo,getLogo,getAllEmployersFunction,getAllEmployersJob};
+module.exports = { getRecruitmentStages,getAllEmployers, getEmployer, getAllEmployersFunction,createNewEmployer, updateOldEmployer, deleteOldEmployer,getEmployerByUser,uploadLogo,getLogo,getAllEmployersFunction,getAllEmployersJob};

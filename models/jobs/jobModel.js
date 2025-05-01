@@ -148,89 +148,77 @@ const getJobByModelId = async (id) => {
 
 const getJobs = async (page = 1, limit = 2, status = 'all', employer_id) => {
     try {
-        // If employer_id is a string "null", convert it to null
-        if (employer_id === 'null') {
-            employer_id = null;
-        }
-
-        // Calculate the offset for pagination
-        const offset = (page - 1) * limit;
-
-        // Start constructing the base SQL query
-        let query = `
-            SELECT 
-                j.*, 
-                GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
-                GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
-                GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
-                GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
-                GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
-                GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names
-            FROM 
-                jobs j
-            LEFT JOIN 
-                job_categories jc ON j.id = jc.job_id
-            LEFT JOIN 
-                industries c ON jc.category_id = c.id
-            LEFT JOIN 
-                job_cultures jcu ON j.id = jcu.job_id
-            LEFT JOIN 
-                cultures cu ON jcu.culture_id = cu.id
-            LEFT JOIN 
-                job_skills js ON j.id = js.job_id
-            LEFT JOIN 
-                skills s ON js.skill_id = s.id
-            WHERE 
-        `;
-
-        // Add employer_id condition if it's not null
-        if (employer_id !== null) {
-            query += ` j.employer_id = ? AND `;
-        }
-
-        // Add the status filter (active, expired, or all)
-        query += `
-            (
-                (? = 'active' AND j.expired_date > NOW())    -- Active jobs (expiry date in future)
-                OR (? = 'expired' AND j.expired_date < NOW()) -- Expired jobs (expiry date in past)
-                OR (? = 'all')                              -- No filtering for all jobs
-            )
-        `;
-
-        // Add pagination (LIMIT and OFFSET)
-        query += ` GROUP BY j.id LIMIT ? OFFSET ?;`;
-
-        // Prepare the parameters based on whether employer_id is null or not
-        const params = employer_id !== null
-            ? [employer_id, status, status, status, limit, offset] // If employer_id is not null
-            : [status, status, status, limit, offset]; // If employer_id is null, no employer_id filter
-
-        // Log the generated query and parameters for debugging
-        console.log("Generated SQL Query:", query);
-        console.log("Query Parameters:", params);
-
-        // Execute the query with the correct parameters
-        const [results] = await db.query(query, params);
-
-        // Log the results for debugging
-        console.log("Results from DB:", results);
-
-        // Transform the result to split comma-separated values into arrays
-        return results.map(job => ({
-            ...job,
-            category_ids: job.category_ids ? job.category_ids.split(',') : [],
-            category_names: job.category_names ? job.category_names.split(',') : [],
-            culture_ids: job.culture_ids ? job.culture_ids.split(',') : [],
-            culture_names: job.culture_names ? job.culture_names.split(',') : [],
-            skill_ids: job.skill_ids ? job.skill_ids.split(',') : [],
-            skill_names: job.skill_names ? job.skill_names.split(',') : [],
-        }));
+      if (employer_id === 'null') {
+        employer_id = null;
+      }
+  
+      const offset = (page - 1) * limit;
+  
+      let query = `
+        SELECT 
+            j.*, 
+            GROUP_CONCAT(DISTINCT jc.category_id) AS category_ids,
+            GROUP_CONCAT(DISTINCT c.industry_name) AS category_names,
+            GROUP_CONCAT(DISTINCT jcu.culture_id) AS culture_ids,
+            GROUP_CONCAT(DISTINCT cu.culture_name) AS culture_names,
+            GROUP_CONCAT(DISTINCT js.skill_id) AS skill_ids,
+            GROUP_CONCAT(DISTINCT s.skill_name) AS skill_names,
+            COUNT(DISTINCT aa.id) AS total_applicants
+        FROM 
+            jobs j
+        LEFT JOIN 
+            job_categories jc ON j.id = jc.job_id
+        LEFT JOIN 
+            industries c ON jc.category_id = c.id
+        LEFT JOIN 
+            job_cultures jcu ON j.id = jcu.job_id
+        LEFT JOIN 
+            cultures cu ON jcu.culture_id = cu.id
+        LEFT JOIN 
+            job_skills js ON j.id = js.job_id
+        LEFT JOIN 
+            skills s ON js.skill_id = s.id
+        LEFT JOIN 
+            applicant_applications aa ON j.id = aa.job_id
+        WHERE 
+      `;
+  
+      if (employer_id !== null) {
+        query += ` j.employer_id = ? AND `;
+      }
+  
+      query += `
+        (
+          (? = 'active' AND j.expired_date > NOW())    
+          OR (? = 'expired' AND j.expired_date < NOW()) 
+          OR (? = 'all')
+        )
+        GROUP BY j.id
+        LIMIT ? OFFSET ?;
+      `;
+  
+      const params = employer_id !== null
+        ? [employer_id, status, status, status, limit, offset]
+        : [status, status, status, limit, offset];
+  
+      const [results] = await db.query(query, params);
+  
+      return results.map(job => ({
+        ...job,
+        category_ids: job.category_ids ? job.category_ids.split(',') : [],
+        category_names: job.category_names ? job.category_names.split(',') : [],
+        culture_ids: job.culture_ids ? job.culture_ids.split(',') : [],
+        culture_names: job.culture_names ? job.culture_names.split(',') : [],
+        skill_ids: job.skill_ids ? job.skill_ids.split(',') : [],
+        skill_names: job.skill_names ? job.skill_names.split(',') : [],
+        total_applicants: job.total_applicants || 0
+      }));
     } catch (error) {
-        console.error('Error fetching jobs:', error.message);
-        throw new Error('Failed to fetch jobs');
+      console.error('Error fetching jobs:', error.message);
+      throw new Error('Failed to fetch jobs');
     }
-};
-
+  };
+  
 
 
 
@@ -458,6 +446,45 @@ const getDashboardStats = async (employer_id) => {
     }
   };
   
+  
+
+
+    const jobApplicants = async (id) => {
+        try {
+          // Get applicants for the job
+          const [applicants] = await db.query(
+            `SELECT 
+               aa.id,
+               aa.applicant_id,
+               aa.job_id,
+               a.first_name,
+               a.last_name,
+               aa.status,
+               aa.created_at
+             FROM applicant_applications aa
+             JOIN applicants a ON aa.applicant_id = a.id
+             WHERE aa.job_id = ?`,
+            [id]
+          );
+      
+          // Get job title
+          const [job] = await db.query(
+            `SELECT title FROM jobs WHERE id = ?`,
+            [id]
+          );
+      
+          return {
+            jobTitle: job.length > 0 ? job[0].title : null,
+            applicants
+          };
+      
+        } catch (error) {
+          console.error("Error in jobApplicants model:", error);
+          throw error;
+        }
+      
+      
+};
 
 module.exports = { 
     getJobs, 
@@ -471,5 +498,6 @@ module.exports = {
     getJobCount,
     getAllJobModel,
     getJobByModelId,
-    getDashboardStats
+    getDashboardStats,
+    jobApplicants
 };

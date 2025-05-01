@@ -230,6 +230,17 @@ const getEmployerJobModel = async (id) => {
   return rows;
 };
 
+// Function to get company recruitment stages dynamically
+const getCompanyRecruitmentStage = async (companyId) => {
+  const query = `
+    SELECT rs.id, rs.name
+    FROM company_stage_order cso
+    JOIN recruitment_stages rs ON rs.id = cso.stage_id
+    WHERE cso.company_id = ?
+    ORDER BY cso.sort_order
+  `;
+  const [stages] = await db.execute(query, [companyId]);
+  return stages;
+};
 
-
-module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser,getEmployerModel,getEmployerJobModel};
+module.exports = { getEmployers, getEmployerById, createEmployer, updateEmployer, deleteEmployer,getEmployerByUserId,getEmployerIdFromUser,getEmployerModel,getEmployerJobModel,getCompanyRecruitmentStage};

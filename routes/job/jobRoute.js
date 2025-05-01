@@ -7,7 +7,7 @@ const {
     updateOldJob,
     deleteOldJob,
     getJobCounts,
-    getDashboardStatic
+    getDashboardStatic,getJobApplicants
   } = require('../../controllers/jobs/jobController');
 
 // Job Routes API
@@ -16,6 +16,7 @@ router.post('/create', createNewJob);
 router.put('/update/:id', updateOldJob);
 router.delete('/delete/:id', deleteOldJob);
 router.get('/counts/:employerId', getJobCounts);
+router.get('/job-applicants/:jobId', getJobApplicants);
 
 
 //Get Employer Static
