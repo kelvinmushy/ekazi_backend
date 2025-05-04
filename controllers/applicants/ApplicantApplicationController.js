@@ -1,6 +1,7 @@
 // Import the required model functions
 const { createApplicantApplication,deleteApplicantApplication,selectApplicationsByApplicantId
-  ,editApplicantApplication,JobSavedModel,deleteSavedJobModel,getSavedJobsByApplicantId,handleStageTransition,} = require('../../models/applicants/applicantApplication');
+  ,editApplicantApplication,JobSavedModel,deleteSavedJobModel,getSavedJobsByApplicantId,handleStageTransition,assessmentExists,
+  interviewExists,screenExists} = require('../../models/applicants/applicantApplication');
 
 
 
@@ -181,12 +182,45 @@ const applicantDeleteSavedJob = async (req, res) => {
 };
 
 const updateApplicantStage = async (req, res) => {
-  const { applicationId } = req.params; // ✅ Get from route
-  const { newStageId, stageData } = req.body; // ✅ Get these from body
-
-  console.log("Stage Transition Payload:", { applicationId, newStageId, stageData });
+  const { applicationId } = req.params;
+  const { newStageId, stageData } = req.body;
 
   try {
+    // Optional: log payload for debugging
+    console.log("Stage Transition Payload:", { applicationId, newStageId, stageData });
+
+    // Check for duplicate assessment
+    if (parseInt(newStageId) === 3) {
+      const exists = await assessmentExists(applicationId);
+      if (exists) {
+        return res.status(400).json({
+          success: false,
+          message: "Assessment already exists for this application.",
+        });
+      }
+    }
+
+    // Check for duplicate interview
+    if (parseInt(newStageId) === 4) {
+      const exists = await interviewExists(applicationId);
+      if (exists) {
+        return res.status(400).json({
+          success: false,
+          message: "Interview already exists for this application.",
+        });
+      }
+    }
+ // Check for duplicate screening
+ if (parseInt(newStageId) === 2) {
+  const exists = await screenExists(applicationId);
+  if (exists) {
+    return res.status(400).json({
+      success: false,
+      message: "Screen already exists for this application.",
+    });
+  }
+}
+    // Proceed with the stage transition
     const result = await handleStageTransition(applicationId, newStageId, stageData);
 
     return res.status(200).json({
@@ -194,6 +228,7 @@ const updateApplicantStage = async (req, res) => {
       message: 'Stage transitioned successfully!',
       data: result,
     });
+
   } catch (error) {
     console.error("Error transitioning applicant stage:", error);
     return res.status(500).json({
@@ -202,6 +237,7 @@ const updateApplicantStage = async (req, res) => {
     });
   }
 };
+
 
 
 // Export the controller

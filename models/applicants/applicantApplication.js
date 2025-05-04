@@ -131,6 +131,27 @@ const deleteSavedJobModel = async (savedId) => {
 // Stage-specific data handlers
 
 // Create screening data
+// Check if assessment already exists
+const assessmentExists = async (applicationId) => {
+  const query = `SELECT COUNT(*) AS count FROM assessments WHERE application_id = ?`;
+  const [rows] = await db.execute(query, [applicationId]);
+  return rows[0].count > 0;
+};
+
+// Check if interview already exists
+const interviewExists = async (applicationId) => {
+  const query = `SELECT COUNT(*) AS count FROM interviews WHERE application_id = ?`;
+  const [rows] = await db.execute(query, [applicationId]);
+  return rows[0].count > 0;
+};
+
+// Check if interview already exists
+const screenExists = async (applicationId) => {
+  const query = `SELECT COUNT(*) AS count FROM screenings WHERE application_id = ?`;
+  const [rows] = await db.execute(query, [applicationId]);
+  return rows[0].count > 0;
+};
+
 const createScreening = async (applicationId, data) => {
   const query = `
     INSERT INTO screenings (application_id, screener_id, method, outcome, notes)
@@ -148,20 +169,34 @@ const createScreening = async (applicationId, data) => {
 
 // Create assessment data
 const createAssessment = async (applicationId, data) => {
+  // Ensure undefined values are replaced with null where applicable
+  const evaluator_id = data.evaluator_id ?? null;
+  const type = data.type ?? 'assessment'; // Default value for type if undefined
+  const score = data.score ?? null; // Default score to null if not provided
+  const notes = data.notes ?? ''; // Default empty string for notes if not provided
+  const date_taken = data.date_taken ?? null; // Ensure date_taken is either a valid date or null
+
   const query = `
     INSERT INTO assessments (application_id, evaluator_id, type, score, notes, date_taken)
     VALUES (?, ?, ?, ?, ?, ?);
   `;
-  const [result] = await db.execute(query, [
-    applicationId,
-    data.evaluator_id,
-    data.type,
-    data.score,
-    data.notes,
-    data.date_taken,
-  ]);
-  return result;
+
+  try {
+    const [result] = await db.execute(query, [
+      applicationId,
+      evaluator_id,
+      type,
+      score,
+      notes,
+      date_taken,
+    ]);
+    return result;
+  } catch (error) {
+    console.error('Error creating assessment:', error);
+    throw error;
+  }
 };
+
 
 // Create interview data
 const createInterview = async (applicationId, data) => {
@@ -223,4 +258,7 @@ module.exports = {
   JobSavedModel,
   getSavedJobsByApplicantId,
   handleStageTransition,
+  assessmentExists,
+  interviewExists,
+  screenExists
 };
