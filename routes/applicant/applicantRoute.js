@@ -63,7 +63,7 @@ const {
  const {
  applicantApplication,selectApplicantById,updateApplication,
  deleteApplication,applicantSaveJob,applicantDeleteSavedJob,
- applicantGetSavedJob
+ applicantGetSavedJob,updateApplicantStage
 } = require('../../controllers/applicants/ApplicantApplicationController'); // Educational Qualifications controller
 
 
@@ -150,6 +150,9 @@ router.post('/applications', applicantApplication);
 router.get('/all/applications/:applicant_id',selectApplicantById);
 router.put('/applications/:applicationId',updateApplication)
 router.delete('/applications/:applicationId',deleteApplication);
+//update candidate stage here
+router.post('/:applicationId/move-stage',updateApplicantStage);
+
 
 //applicant save job
 router.get('/saved-jobs/:applicant_id',applicantGetSavedJob);

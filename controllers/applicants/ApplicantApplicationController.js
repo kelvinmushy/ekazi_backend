@@ -1,6 +1,6 @@
 // Import the required model functions
 const { createApplicantApplication,deleteApplicantApplication,selectApplicationsByApplicantId
-  ,editApplicantApplication,JobSavedModel,deleteSavedJobModel,getSavedJobsByApplicantId} = require('../../models/applicants/applicantApplication');
+  ,editApplicantApplication,JobSavedModel,deleteSavedJobModel,getSavedJobsByApplicantId,handleStageTransition,} = require('../../models/applicants/applicantApplication');
 
 
 
@@ -180,10 +180,33 @@ const applicantDeleteSavedJob = async (req, res) => {
   }
 };
 
+const updateApplicantStage = async (req, res) => {
+  const { applicationId } = req.params; // ✅ Get from route
+  const { newStageId, stageData } = req.body; // ✅ Get these from body
+
+  console.log("Stage Transition Payload:", { applicationId, newStageId, stageData });
+
+  try {
+    const result = await handleStageTransition(applicationId, newStageId, stageData);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Stage transitioned successfully!',
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error transitioning applicant stage:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 // Export the controller
 module.exports = { applicantApplication,selectApplicantById,
   updateApplication,deleteApplication,
   applicantSaveJob,applicantDeleteSavedJob,
-  applicantGetSavedJob
+  applicantGetSavedJob,updateApplicantStage
 };
